@@ -19,7 +19,7 @@ each written as `field_name:` followed by its value.
 
  **V 0.8.5** &ensp; <@leonardo-bersellini> &emsp; 07 . 09 . 2026
 
- `commit:` Stack templates *-o- ()*
+ `commit:` Stack templates *-o- (13fdcac)*
  <br>
  `scope:` Utils, Codegen, Semantics
  <br>
