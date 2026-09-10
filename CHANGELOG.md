@@ -17,9 +17,29 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.8.7** &ensp; <@leonardo-bersellini> &emsp; 10 . 09 . 2026
+
+ `commit:` Refactored Symbols Structure *-o- ()*
+ <br>
+ `scope:` Symbols, Semantics
+ <br>
+ `features:` refactored symbols structure and tables
+
+ ---
+
+ **V 0.8.6** &ensp; <@leonardo-bersellini> &emsp; 09 . 09 . 2026
+
+ `commit:` Added Integration Test *-o- (5851a8f)*
+ <br>
+ `scope:` Tests
+ <br>
+ `features:` new tests that run a whole bismuth source code
+
+ ---
+
  **V 0.8.5** &ensp; <@leonardo-bersellini> &emsp; 07 . 09 . 2026
 
- `commit:` Stack templates *-o- (13fdcac)*
+ `commit:` Stack templates *-o- (0e47ca4)*
  <br>
  `scope:` Utils, Codegen, Semantics
  <br>
