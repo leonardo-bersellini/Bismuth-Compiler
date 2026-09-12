@@ -418,6 +418,11 @@ void CodeGenerator::generate(const Program &program)
     scopeStack.pop();
 }
 
+void CodeGenerator::assignNamespaceTable(NamespaceTable& namespaceTable)
+{
+    this->namespaceTable = &namespaceTable;
+}
+
 /*
  * Funzione di codegen per ogni stmt del programma.
  * Il codice di generazione di ogni stmt è racchiuso in funzioni helper per chiarezza e
@@ -486,6 +491,12 @@ void CodeGenerator::generateStmt(const Stmt *stmt)
         generateSwitchStmt(s);
     }
 
+    // Namespace Stmt
+    else if(auto s = dynamic_cast<const NamespaceStmt*>(stmt))
+    {
+        generateNamespaceStmt(s);
+    }
+
     return;
 }
 
@@ -541,14 +552,14 @@ void CodeGenerator::generateAssignStmt(const AssignmentStmt *st)
 
 void CodeGenerator::generateDeclarationStmt(const DeclarationStmt *st)
 {
+    std::string st_name = namespaceTable->mangleName(st->name);
+
     if(scopeStack.isGlobalScope()) 
     {
         llvm::Constant* constant;
 
         if(st->initializer)
-        {
-            auto init = st->initializer.get();
-            
+        {   
             if(auto n = dynamic_cast<const NumberExpr*>(st->initializer.get())) {
                 if(n->isInteger) {
                     constant = llvm::ConstantInt::get(getLLVMType(Type(PrimitiveType::Int)), n->value);
@@ -574,16 +585,16 @@ void CodeGenerator::generateDeclarationStmt(const DeclarationStmt *st)
             st->isConst, 
             llvm::GlobalValue::ExternalLinkage,
             constant, 
-            st->name
+            st_name
         );
-        scopeStack.declareGlobal(st->name, var);
+        scopeStack.declareGlobal(st_name, var);
 
         return;
     }
 
     // alloca variabile locale
-    auto* alloc = Builder.CreateAlloca(getLLVMType(st->type), nullptr, st->name);
-    scopeStack.declareSymbol(st->name, alloc);
+    auto* alloc = Builder.CreateAlloca(getLLVMType(st->type), nullptr, st_name);
+    scopeStack.declareSymbol(st_name, alloc);
 
     if(st->initializer) 
     {
@@ -595,7 +606,7 @@ void CodeGenerator::generateDeclarationStmt(const DeclarationStmt *st)
                 auto varExpr = dynamic_cast<const VariableExpr*>(st->initializer.get());
                 llvm::Value* source = scopeStack.lookupSymbol(varExpr->name).value();
                 
-                llvm::ArrayType* arrType = llvm::cast<llvm::ArrayType>(getAllocatedType(scopeStack.lookupSymbol(st->name).value()));
+                llvm::ArrayType* arrType = llvm::cast<llvm::ArrayType>(getAllocatedType(scopeStack.lookupSymbol(st_name).value()));
                 llvm::Type* elementType = arrType->getElementType();
 
                 copyArrayElements(source, alloc, arrType, elementType);
@@ -611,6 +622,8 @@ void CodeGenerator::generateDeclarationStmt(const DeclarationStmt *st)
 
 void CodeGenerator::generateFunctionStmt(const FunctionStmt *st)
 {
+    std::string st_name = namespaceTable->mangleName(st->name);
+
     std::vector<llvm::Type*> args;
     for(const FunctionParam& p : st->params) {
         args.push_back(getLLVMType(p.type));
@@ -619,7 +632,7 @@ void CodeGenerator::generateFunctionStmt(const FunctionStmt *st)
     auto *funcType = llvm::FunctionType::get(getLLVMType(st->returnType), args, false);
 
     auto *function = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage,
-                                            st->name, Module.get());
+                                            st_name, Module.get());
 
     auto *entry = llvm::BasicBlock::Create(Context, "entry", function);
 
@@ -851,6 +864,22 @@ void CodeGenerator::generateSwitchStmt(const SwitchStmt* st)
 }
 
 /*
+ * Funzione di generazione di un namespace.
+ */
+
+void CodeGenerator::generateNamespaceStmt(const NamespaceStmt* st)
+{
+    namespaceTable->push(st->name);
+
+    // ogni stmt interessato gestisce in automatico la propria presenza dentro un namespace
+    for(const auto& s : st->body) {
+        generateStmt(s.get());
+    }
+
+    namespaceTable->pop();
+}
+
+/*
  * Questa funzione di utility si occupa di raccogliere le label costanti di una serie di 
  * case stmts, che condividono lo stesso body annidato.
  * Ritorna anche il case finale (quello che contiene il body comune agli altri) per valore.
@@ -948,7 +977,7 @@ ExprGenResult CodeGenerator::generateExpr(const Expr *expr)
         }
 
         return ExprGenResult {
-            Builder.CreateLoad(llvm::cast<llvm::AllocaInst>(val)->getAllocatedType(), val, s->name), 
+            Builder.CreateLoad(getAllocatedType(val), val, s->name), 
             type,
         };
     }
@@ -995,7 +1024,8 @@ ExprGenResult CodeGenerator::generateExpr(const Expr *expr)
     // Function Call Expression
     else if(auto s = dynamic_cast<const CallExpr*>(expr))
     {
-        llvm::Function *callee = Module->getFunction(s->name);
+        std::string func_name = namespaceTable->mangleName(s->name);
+        llvm::Function *callee = Module->getFunction(func_name);
         if(!callee) return ExprGenResult{};
 
         std::vector<llvm::Value*> args;
@@ -1004,7 +1034,7 @@ ExprGenResult CodeGenerator::generateExpr(const Expr *expr)
         }
 
         return ExprGenResult {
-            Builder.CreateCall(callee, args, s->name),
+            Builder.CreateCall(callee, args, func_name),
             getType(callee->getReturnType())
         };
     }
