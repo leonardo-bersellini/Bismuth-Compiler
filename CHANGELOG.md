@@ -15,11 +15,51 @@ each written as `field_name:` followed by its value.
  
  ### Bismuth Versions
 
+---
+
+ **V 0.8.11** &ensp; <@leonardo-bersellini> &emsp; 13 . 09 . 2026
+
+ `commit:` Build: Switch to static linking *-o- ()*
+ <br>
+ `scope:` CMake, third-party
+ <br>
+ `features:` the executable now link statically all the mingw dependencies
+
+ ---
+
+ **V 0.8.10** &ensp; <@leonardo-bersellini> &emsp; 13 . 09 . 2026
+
+ `commit:` Fixed memory bugs *-o- (4e4e848)*
+ <br>
+ `scope:` scopeStack, namespaceTable
+ <br>
+ `features:` bug fixes that caused crashes at runtime
+
+ ---
+
+ **V 0.8.9** &ensp; <@leonardo-bersellini> &emsp; 12 . 09 . 2026
+
+ `commit:` Namespace Declaration *-o- (c67f1e0)*
+ <br>
+ `scope:` All
+ <br>
+ `features:` implemented namespaces declaration
+
+ ---
+
+ **V 0.8.8** &ensp; <@leonardo-bersellini> &emsp; 11 . 09 . 2026
+
+ `commit:` Enabled global variables in Codegen *-o- (2ca0cc9)*
+ <br>
+ `scope:` Codegen, Semantics
+ <br>
+ `features:` enabled global variables in semantics and codegeneration
+
  ---
 
  **V 0.8.7** &ensp; <@leonardo-bersellini> &emsp; 10 . 09 . 2026
 
- `commit:` Refactored Symbols Structure *-o- ()*
+ `commit:` Refactored Symbols Structure *-o- (86afb71)*
  <br>
  `scope:` Symbols, Semantics
  <br>
