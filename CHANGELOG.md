@@ -15,11 +15,21 @@ each written as `field_name:` followed by its value.
  
  ### Bismuth Versions
 
----
+ ---
+
+ **V 0.9.0** &ensp; <@leonardo-bersellini> &emsp; 13 . 09 . 2026
+
+ `commit:` Qualified Names *-o- ()*
+ <br>
+ `scope:` All
+ <br>
+ `features:` implemented qualified names for access to namespaces variables and functions
+
+ ---
 
  **V 0.8.11** &ensp; <@leonardo-bersellini> &emsp; 13 . 09 . 2026
 
- `commit:` Build: Switch to static linking *-o- ()*
+ `commit:` Build: Switch to static linking *-o- (238432a)*
  <br>
  `scope:` CMake, third-party
  <br>
