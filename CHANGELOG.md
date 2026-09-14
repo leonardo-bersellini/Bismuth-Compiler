@@ -17,9 +17,19 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.9.2** &ensp; <@leonardo-bersellini> &emsp; 14 . 09 . 2026
+
+ `commit:` Made Ansi output conditional *-o- ()*
+ <br>
+ `scope:` Utility: ansi
+ <br>
+ `features:` added new --no-ansi option for conditional ansi colors
+
+ ---
+
  **V 0.9.1** &ensp; <@leonardo-bersellini> &emsp; 14 . 09 . 2026
 
- `commit:` Refactored Assignment Stmt *-o- ()*
+ `commit:` Refactored Assignment Stmt *-o- (f29dca4)*
  <br>
  `scope:` All
  <br>
