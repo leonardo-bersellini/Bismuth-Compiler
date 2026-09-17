@@ -23,11 +23,21 @@ each written as `field_name:` followed by its value.
  
  ### Bismuth Versions
 
+---
+
+ **V 0.9.4** &ensp; <@leonardo-bersellini> &emsp; 17 . 09 . 2026
+
+ `commit:` Implemented Break and Continue Instructions *-o- ()* 
+ <br>
+ `scope:`  Codegen
+ <br>
+ `features:` finished continue and break implementeation at codegen level
+
  ---
 
  **V 0.9.2** &ensp; <@leonardo-bersellini> &emsp; 14 . 09 . 2026
 
- `commit:` Made Ansi output conditional *-o- (7a6dd0e)* 
+ `commit:` Made Ansi output conditional *-o- (dc06fe0)* 
  <br>
  `scope:`  Utility: ansi
  <br>
