@@ -73,6 +73,17 @@ private:
     std::unique_ptr<Expr> parseMathExpression();
     std::unique_ptr<Expr> parseTerm();
     std::unique_ptr<Expr> parseFactor();
+
+    std::unique_ptr<Expr> parseIntegerLiteralExpr();
+    std::unique_ptr<Expr> parseStringLiteralExpr();
+    std::unique_ptr<Expr> parseCharLiteralExpr();
+    std::unique_ptr<Expr> parseBoolLiteralExpr();
+    std::unique_ptr<Expr> parseArrayLiteralExpr();
+    std::unique_ptr<Expr> parseFunctionCallExpr();
+    std::unique_ptr<Expr> parseArrayAccessExpr();
+    std::unique_ptr<Expr> parseVariableExpr();
+    std::unique_ptr<Expr> parseUnaryOpExpr();
+
 };
 
 #endif // PARSER_H

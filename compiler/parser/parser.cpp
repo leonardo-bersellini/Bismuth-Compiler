@@ -1061,133 +1061,49 @@ std::unique_ptr<Expr> Parser::parseFactor()
     // Numeri letterali
     if(check(TokenType::IntegerLiteral) || check(TokenType::DoubleLiteral))
     {
-        Token t = advance();
-
-        auto numberExpr = make_unique_expr<NumberExpr>();
-        numberExpr->value = t.numericValue;
-        numberExpr->isInteger = (t.type == TokenType::IntegerLiteral);
-        return numberExpr;
+        return parseIntegerLiteralExpr();
     }
 
     // Stringhe letterali
     else if(check(TokenType::StringLiteral))
     {
-        std::string lexeme = advance().lexeme;
-
-        if(lexeme.empty()) {
-            errorLog->addError("could not convert \"\" (empty char list) to an array of type char[]", peek().position);
-            return make_unique_expr<ErrorExpr>();
-        }
-
-        auto arrStr = make_unique_expr<LiteralArrayExpr>();
-        arrStr->type = ArrayType(PrimitiveType::Char, lexeme.size());
-        
-        for(const char c : lexeme) {
-            auto charExpr = make_unique_expr<CharExpr>();
-            charExpr->value = c;
-            arrStr->elements.push_back(std::move(charExpr));
-        }
-
-        return arrStr;
+        return parseStringLiteralExpr();
     }
 
     // Char letterali
     else if(check(TokenType::CharLiteral))
     {
-        std::string ch_str = advance().lexeme; //stringa con un carattere
-
-        auto charExpr = make_unique_expr<CharExpr>();
-        charExpr->value = ch_str.at(0); //estrazione char
-        return charExpr;
+        return parseCharLiteralExpr();
     }
 
     // Booleano Letterale
     else if(check(TokenType::BoolLiteral))
     {
-        std::string lexeme = advance().lexeme; //consuma il token valore
-        bool val;
-
-        if(keywords.contains(lexeme)) {
-            //valore assegnato come "true" o "false"
-            val = lexeme == "true" ? true : false;
-        } else {
-            //valore assegnato come 0 o 1
-            val = lexeme == "1" ? true : false;
-        }
-
-        auto boolExpr = make_unique_expr<BooleanExpr>();
-        boolExpr->value = val;
-        return boolExpr;
+        return parseBoolLiteralExpr();
     }
 
     // Array Literal
     else if(check(TokenType::LBracket))
     {
-        advance(); //consuma [
-
-        auto arr = make_unique_expr<LiteralArrayExpr>();
-
-        while(!check(TokenType::RBracket) && !isAtEnd()) 
-        {
-            arr->elements.push_back(parseExpr());
-            if(check(TokenType::Comma)) advance();
-        }
-        expect(TokenType::RBracket, true);
-
-        return arr;
+        return parseArrayLiteralExpr();
     } 
 
     // Chiamata a funzione
     else if(check(TokenType::Identifier) && peek(1).type == TokenType::LParen)
     {
-        auto call = make_unique_expr<CallExpr>();
-
-        auto nameInfo = resolveQualifiedName();
-
-        call->name = nameInfo.first;
-        call->qualifiers = nameInfo.second;
-        expect(TokenType::LParen, true);
-
-        std::vector<std::unique_ptr<Expr>> args;
-
-        while(!check(TokenType::RParen) && !isAtEnd())
-        {
-            args.push_back(parseExpr());
-
-            if(check(TokenType::Comma))
-                advance(); // consuma ',' se c'è un altro argomento
-        }
-        expect(TokenType::RParen, true);
-
-        call->args = std::move(args);
-        return call;
+        return parseFunctionCallExpr();
     }
 
     // Accesso a indice di un array
     else if(check(TokenType::Identifier) && peek(1).type == TokenType::LBracket)
     {
-        auto base = make_unique_expr<VariableExpr>();
-        base->name = advance().lexeme; //identifier
-        
-        expect(TokenType::LBracket, true);
-        auto index = parseExpr();
-        expect(TokenType::RBracket, true);
-
-        auto arrAccess = make_unique_expr<ArrayAccessExpr>();
-        arrAccess->base = std::move(base);
-        arrAccess->index = std::move(index);
-        return arrAccess;
+        return parseArrayAccessExpr();
     }
 
     // Variabile 
     else if(check(TokenType::Identifier))
     {
-        auto nameInfo = resolveQualifiedName();
-
-        auto variableExpr = make_unique_expr<VariableExpr>();
-        variableExpr->name = nameInfo.first;
-        variableExpr->qualifiers = nameInfo.second;
-        return variableExpr;
+        return parseVariableExpr();
     }
 
     // Parentesi
@@ -1203,12 +1119,7 @@ std::unique_ptr<Expr> Parser::parseFactor()
     // Operatori unari - il + è considerato solo per non generare errore
     else if(check(TokenType::Minus) || check(TokenType::Plus))
     {
-        TokenType op = advance().type; //consuma il token '-' o '+'
-
-        auto unaryExpr = make_unique_expr<UnaryExpr>();
-        unaryExpr->op = op;
-        unaryExpr->operand = parseFactor(); //call ricorsiva
-        return unaryExpr;
+        return parseUnaryOpExpr();
     }
 
     // Errori di sintassi
@@ -1221,4 +1132,143 @@ std::unique_ptr<Expr> Parser::parseFactor()
     }
 
     return nullptr;
+}
+
+/*
+ * Le seguenti funzioni sono helper che racchiudono la logica di parsing delle singole
+ * espressioni analizzate dentro a parseFactor.
+ */
+
+std::unique_ptr<Expr> Parser::parseIntegerLiteralExpr()
+{
+    Token t = advance();
+
+    auto numberExpr = make_unique_expr<NumberExpr>();
+    numberExpr->value = t.numericValue;
+    numberExpr->isInteger = (t.type == TokenType::IntegerLiteral);
+    return numberExpr;
+}
+
+std::unique_ptr<Expr> Parser::parseStringLiteralExpr()
+{
+    std::string lexeme = advance().lexeme;
+
+    if(lexeme.empty()) {
+        errorLog->addError("could not convert \"\" (empty char list) to an array of type char[]", peek().position);
+        return make_unique_expr<ErrorExpr>();
+    }
+
+    auto arrStr = make_unique_expr<LiteralArrayExpr>();
+    arrStr->type = ArrayType(PrimitiveType::Char, lexeme.size());
+        
+    for(const char c : lexeme) {
+        auto charExpr = make_unique_expr<CharExpr>();
+        charExpr->value = c;
+        arrStr->elements.push_back(std::move(charExpr));
+    }
+
+    return arrStr;
+}
+
+std::unique_ptr<Expr> Parser::parseCharLiteralExpr()
+{
+    std::string ch_str = advance().lexeme; //stringa con un carattere
+
+    auto charExpr = make_unique_expr<CharExpr>();
+    charExpr->value = ch_str.at(0); //estrazione char
+    return charExpr;
+}
+
+std::unique_ptr<Expr> Parser::parseBoolLiteralExpr()
+{
+    std::string lexeme = advance().lexeme; //consuma il token valore
+    bool val;
+
+    if(keywords.contains(lexeme)) {
+        //valore assegnato come "true" o "false"
+        val = lexeme == "true" ? true : false;
+    } else {
+        //valore assegnato come 0 o 1
+        val = lexeme == "1" ? true : false;
+    }
+
+    auto boolExpr = make_unique_expr<BooleanExpr>();
+    boolExpr->value = val;
+    return boolExpr;
+}
+
+std::unique_ptr<Expr> Parser::parseArrayLiteralExpr()
+{
+    advance(); //consuma [
+
+    auto arr = make_unique_expr<LiteralArrayExpr>();
+
+    while(!check(TokenType::RBracket) && !isAtEnd()) 
+    {
+        arr->elements.push_back(parseExpr());
+        if(check(TokenType::Comma)) advance();
+    }
+    expect(TokenType::RBracket, true);
+
+    return arr;
+}
+
+std::unique_ptr<Expr> Parser::parseFunctionCallExpr()
+{
+    auto call = make_unique_expr<CallExpr>();
+
+    auto nameInfo = resolveQualifiedName();
+
+    call->name = nameInfo.first;
+    call->qualifiers = nameInfo.second;
+    expect(TokenType::LParen, true);
+
+    std::vector<std::unique_ptr<Expr>> args;
+
+    while(!check(TokenType::RParen) && !isAtEnd())
+    {
+        args.push_back(parseExpr());
+
+        if(check(TokenType::Comma))
+            advance(); // consuma ',' se c'è un altro argomento
+    }
+    expect(TokenType::RParen, true);
+
+    call->args = std::move(args);
+    return call;
+}
+
+std::unique_ptr<Expr> Parser::parseArrayAccessExpr()
+{
+    auto base = make_unique_expr<VariableExpr>();
+    base->name = advance().lexeme; //identifier
+        
+    expect(TokenType::LBracket, true);
+    auto index = parseExpr();
+    expect(TokenType::RBracket, true);
+
+    auto arrAccess = make_unique_expr<ArrayAccessExpr>();
+    arrAccess->base = std::move(base);
+    arrAccess->index = std::move(index);
+    return arrAccess;
+}
+
+std::unique_ptr<Expr> Parser::parseVariableExpr()
+{
+    auto nameInfo = resolveQualifiedName();
+
+    auto variableExpr = make_unique_expr<VariableExpr>();
+    variableExpr->name = nameInfo.first;
+    variableExpr->qualifiers = nameInfo.second;
+    return variableExpr;
+}
+
+std::unique_ptr<Expr> Parser::parseUnaryOpExpr()
+{
+    TokenType op = advance().type; //consuma il token '-' o '+'
+
+    auto unaryExpr = make_unique_expr<UnaryExpr>();
+    unaryExpr->op = op;
+    unaryExpr->operand = parseFactor(); //call ricorsiva
+    return unaryExpr;
 }
