@@ -27,6 +27,8 @@ public:
     virtual ~Expr() = default;
     // lvalue indica un valore al quale si può assegnare un altro valore (rvalue)
     virtual bool isLValue() const =0;
+    // true se l'espressione è di natura costante (e.g. literal)
+    virtual bool isConstantExpr() const =0;
 };
 
 // helper per i qualified names
@@ -38,18 +40,21 @@ public:
     bool isInteger; //distinzione double-int
 
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return true; }
 };
 
 class CharExpr : public Expr {
 public:
     char value;
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return true; }
 };
 
 class BooleanExpr : public Expr {
 public:
     bool value;
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return true; }
 };
 
 class AssignmentExpr : public Expr {
@@ -59,6 +64,7 @@ public:
     std::unique_ptr<Expr> value;
 
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return false; }
 };
 
 // assegnazioni composte con operatori (es: +=)
@@ -68,6 +74,7 @@ public:
     std::unique_ptr<AssignmentExpr> assignment;
 
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return false; }
 };
 
 class VariableExpr : public Expr {
@@ -76,6 +83,7 @@ public:
     Qualifiers qualifiers;
 
     bool isLValue() const override { return true; }
+    bool isConstantExpr() const override { return false; }
 };
 
 class BinaryExpr : public Expr {
@@ -85,6 +93,7 @@ public:
     std::unique_ptr<Expr> right;
 
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return false; }
 };
 
 class UnaryExpr : public Expr {
@@ -93,6 +102,7 @@ public:
     std::unique_ptr<Expr> operand;
 
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return false; }
 };
 
 class CallExpr : public Expr { //chiamata ad una funzione
@@ -102,6 +112,7 @@ public:
     std::vector<std::unique_ptr<Expr>> args;
 
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return false; }
 };
 
 //array letterale := [value, value, value, ...]
@@ -111,6 +122,13 @@ public:
     std::vector<std::unique_ptr<Expr>> elements;
 
     bool isLValue() const override { return false; }
+
+    bool isConstantExpr() const override { 
+        for(const auto& e : elements) {
+            if(!e->isConstantExpr()) return false;
+        }
+        return true;
+    }
 };
 
 class ArrayAccessExpr : public Expr {
@@ -119,12 +137,14 @@ public:
     std::unique_ptr<Expr> index;
 
     bool isLValue() const override { return true; }
+    bool isConstantExpr() const override { return false; }
 };
 
 class ErrorExpr : public Expr {
 public:
     //void, expression placeholder
     bool isLValue() const override { return false; }
+    bool isConstantExpr() const override { return false; }
 };
 
 // Statements - esecuzione di azioni

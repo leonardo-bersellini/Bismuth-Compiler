@@ -208,15 +208,13 @@ void SemanticAnalyzer::analyzeDeclaration(const DeclarationStmt* s)
         }
     }
 
-    if(scopeStack.isGlobalScope() && s->initializer) 
+    //scope globale o namespace
+    if((currentFunction == nullptr) && s->initializer) 
     {
         //dichiarazione globale, controllo di valore const
-        auto* init = s->initializer.get();
-        bool isLiteral = dynamic_cast<const NumberExpr*>(init)
-                        || dynamic_cast<const CharExpr*>(init)
-                        || dynamic_cast<const BooleanExpr*>(init);
+        bool isConstant = s->initializer->isConstantExpr();
 
-        if(!isLiteral) {
+        if(!isConstant) {
             errorLog->addError("global variable '" + s->name + "' must be initialized with a constant literal", s->position);
             return;
         }
@@ -388,9 +386,7 @@ void SemanticAnalyzer::analyzeCase(const CaseStmt* s, const PrimitiveType& switc
     }
 
     //ogni label deve essere un valore costante a compile time
-    if(dynamic_cast<const CharExpr*>(s->label.get()) || dynamic_cast<const NumberExpr*>(s->label.get())) {
-        // il valore è di natura costante
-    } else {
+    if(!s->label->isConstantExpr()) {
         errorLog->addError("case label value must be constant and known at compile-time", s->position);
     }
 

@@ -215,6 +215,58 @@ llvm::Constant* CodeGenerator::getDefaultValue(const Type& type)
 } 
 
 /*
+ * Questa funzione restituisce un valore llvm costante partendo da un espressione che
+ * rappresenta un literal costante.
+ */
+
+llvm::Constant* CodeGenerator::getConstantFromLiteral(const Expr* literal)
+{
+    if(!literal->isConstantExpr()) {
+        throw std::runtime_error("codegen internal error: literal expr is not constant");
+    }
+
+    auto generateConstLiteral = [this](const Expr* expr) 
+    {
+        if(auto d = dynamic_cast<const NumberExpr*>(expr)) {
+            if(d->isInteger) {
+                return llvm::ConstantInt::get(getLLVMType(Type(PrimitiveType::Int)), d->value);
+            } else {
+                return llvm::ConstantFP::get(getLLVMType(Type(PrimitiveType::Double)), d->value);
+            }
+        } 
+        else if(auto c = dynamic_cast<const CharExpr*>(expr)) {
+            return llvm::ConstantInt::get(getLLVMType(Type(PrimitiveType::Char)), c->value);
+        }
+        else if(auto b = dynamic_cast<const BooleanExpr*>(expr)) {
+            return llvm::ConstantInt::get(getLLVMType(Type(PrimitiveType::Bool)), b->value);
+        }
+        else throw std::runtime_error("internal error: global variable invalid initializer");
+    };
+    
+    if(auto arr = dynamic_cast<const LiteralArrayExpr*>(literal)) 
+    {
+        llvm::Type* elemTy = getLLVMType(Type(arr->type.elementType));
+        llvm::ArrayType* arrTy = llvm::ArrayType::get(elemTy, arr->elements.size());
+
+        std::vector<llvm::Constant*> constants;
+        constants.reserve(arr->elements.size());
+
+        for(const auto& elemExpr : arr->elements)
+        {
+            if(!elemExpr->isConstantExpr()) {
+                throw std::runtime_error("codegen internal error: non-constant element in literal array");
+            }
+            constants.push_back(generateConstLiteral(elemExpr.get()));
+        }
+
+        return llvm::ConstantArray::get(arrTy, constants);
+    } 
+    else {
+        return generateConstLiteral(literal);
+    }
+}
+
+/*
  * Questa funzione permette di risalire al tipo allocato in una variabile letta tramite lookup,
  * ritornando il tipo contenuto in base alla natura dell'llvm::Value.
  */
@@ -495,21 +547,7 @@ void CodeGenerator::generateDeclarationStmt(const DeclarationStmt *st)
 
         if(st->initializer)
         {   
-            if(auto n = dynamic_cast<const NumberExpr*>(st->initializer.get())) {
-                if(n->isInteger) {
-                    constant = llvm::ConstantInt::get(getLLVMType(Type(PrimitiveType::Int)), n->value);
-                } else {
-                    constant = llvm::ConstantFP::get(getLLVMType(Type(PrimitiveType::Double)), n->value);
-                }
-            }
-            else if(auto c = dynamic_cast<const CharExpr*>(st->initializer.get())) {
-                constant = llvm::ConstantInt::get(getLLVMType(Type(PrimitiveType::Char)), c->value);
-            }
-            else if(auto b = dynamic_cast<const BooleanExpr*>(st->initializer.get())) {
-                constant = llvm::ConstantInt::get(getLLVMType(Type(PrimitiveType::Bool)), b->value);
-            }
-            else throw std::runtime_error("internal error: global variable invalid initializer");
-
+            constant = getConstantFromLiteral(st->initializer.get());
         } else {
             constant = getDefaultValue(st->type);
         }
