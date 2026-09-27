@@ -62,6 +62,7 @@ private:
     llvm::Type* getLLVMType(const Type &type);
     Type getType(llvm::Type *type);
     llvm::Constant* getDefaultValue(const Type& type);
+    llvm::Constant* getConstantFromLiteral(const Expr* literal);
     llvm::Type* getAllocatedType(llvm::Value* ptr);
     llvm::Value* castValue(llvm::Value* value, PrimitiveType from, PrimitiveType to);
 
