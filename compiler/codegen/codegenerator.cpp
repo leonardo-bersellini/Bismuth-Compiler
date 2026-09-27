@@ -402,6 +402,31 @@ void CodeGenerator::generateArrayAssignment(const LiteralArrayExpr* arrLit, llvm
     copyArrayElements(srcVal.llvm_value, destination, arrType, elementType);
 }
 
+/*
+ * Funzione di utility, racchiude la logica di hoisting di un alloca.
+ * Per Hoisting si intende la pratica di inserire la dichiarazione di una variabile temporanea
+ * di una fuzione (per esempio un valore letterale che potrebbe essere allocato una sola volta),
+ * nell'entry block dell'istruzione stessa, in modo da non dover eseguire la stessa allocazione per 
+ * una variabile temporanea troppe volte.
+ */
+
+llvm::AllocaInst* CodeGenerator::createEntryAlloca(llvm::Type* type, const std::string &name) 
+{
+    // il builder risale all'entry block corrente
+    llvm::Function* function = Builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock& entryBlock = function->getEntryBlock();
+
+    // salvataggio del punto di inserimento corrente
+    auto savedInsertPoint = Builder.saveIP();
+
+    // l'alloca verrà salvato come prima istruzione dell'entry block
+    Builder.SetInsertPoint(&entryBlock, entryBlock.begin());
+    llvm::AllocaInst* alloc = Builder.CreateAlloca(type, nullptr, name);
+
+    Builder.restoreIP(savedInsertPoint);
+    return alloc;
+}
+
 /// --- ENTRY POINT, CODEGEN --- ///
 
 /*
@@ -580,8 +605,8 @@ void CodeGenerator::generateDeclarationStmt(const DeclarationStmt *st)
         return;
     }
 
-    // alloca variabile locale
-    auto* alloc = Builder.CreateAlloca(getLLVMType(st->type), nullptr, st_name);
+    // alloca variabile locale (entry block)
+    auto* alloc = createEntryAlloca(getLLVMType(st->type), st_name);
     scopeStack.declareSymbol(st_name, alloc);
 
     if(st->initializer) 
@@ -636,7 +661,8 @@ void CodeGenerator::generateFunctionStmt(const FunctionStmt *st)
 
         arg.setName(p.name);
 
-        auto* alloc = Builder.CreateAlloca(getLLVMType(p.type), nullptr, p.name);
+        //allocazione dei parametri nell'entry block
+        auto* alloc = createEntryAlloca(getLLVMType(p.type), p.name);
         Builder.CreateStore(&arg, alloc);
 
         scopeStack.declareSymbol(p.name, alloc);
@@ -1132,7 +1158,7 @@ ExprGenResult CodeGenerator::generateExpr(const Expr *expr)
     else if(auto s = dynamic_cast<const LiteralArrayExpr*>(expr))
     {
         llvm::ArrayType* arrType = llvm::cast<llvm::ArrayType>(getLLVMType(Type{s->type}));
-        llvm::AllocaInst* array = Builder.CreateAlloca(arrType);
+        llvm::AllocaInst* array = createEntryAlloca(arrType);
 
         int index = 0;
         for(const auto& e : s->elements) 

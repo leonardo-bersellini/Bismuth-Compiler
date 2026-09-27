@@ -25,9 +25,19 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.11.5** &ensp; <@leonardo-bersellini> &emsp; 27 . 09 . 2026
+
+ `commit:` Fixed stack overflow from repeated allocations *-o- ()* 
+ <br>
+ `scope:`  Codegen
+ <br>
+ `features:` added an hoisting allocation method
+
+ ---
+
  **V 0.11.4** &ensp; <@leonardo-bersellini> &emsp; 27 . 09 . 2026
 
- `commit:` Fixed qualified name resolution in identifier parsing *-o- ()* 
+ `commit:` Fixed qualified name resolution in identifier parsing *-o- (72c1568)* 
  <br>
  `scope:`  Parser, Codegen
  <br>

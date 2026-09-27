@@ -70,6 +70,8 @@ private:
 
     void copyArrayElements(llvm::Value* source, llvm::Value* destination, llvm::ArrayType* arrType, llvm::Type* elementType);
     void generateArrayAssignment(const LiteralArrayExpr* arrLit, llvm::Value* destination);
+
+    llvm::AllocaInst* createEntryAlloca(llvm::Type* ty, const std::string &name = "");
     
     void generateStmt(const Stmt* stmt);
 
