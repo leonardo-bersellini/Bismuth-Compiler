@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <memory>
-#include <concepts>
 
 #include "token.h"
 #include "AbstractSintaxTree.h"
@@ -11,6 +10,8 @@
 #include "errors/recovery/recoveryhandler.h"
 
 #include "symbols.h"
+
+#include "utils/qualified_names/qualified_names.h"
 
 class Parser
 {
@@ -46,7 +47,7 @@ private:
 
     std::unique_ptr<Stmt> parseBranchBody();
     Type parseArrayType(); 
-    std::pair<std::string, Qualifiers> resolveQualifiedName();
+    QualifiedName resolveQualifiedName();
 
     std::unique_ptr<Stmt> parseScopeStmt();
     std::unique_ptr<Stmt> parseDeclarationStmt(bool isConstDeclaration = false);
@@ -79,9 +80,9 @@ private:
     std::unique_ptr<Expr> parseCharLiteralExpr();
     std::unique_ptr<Expr> parseBoolLiteralExpr();
     std::unique_ptr<Expr> parseArrayLiteralExpr();
-    std::unique_ptr<Expr> parseFunctionCallExpr();
-    std::unique_ptr<Expr> parseArrayAccessExpr();
-    std::unique_ptr<Expr> parseVariableExpr();
+    std::unique_ptr<Expr> parseFunctionCallExpr(QualifiedName);
+    std::unique_ptr<Expr> parseArrayAccessExpr(QualifiedName);
+    std::unique_ptr<Expr> parseVariableExpr(QualifiedName);
     std::unique_ptr<Expr> parseUnaryOpExpr();
 
 };

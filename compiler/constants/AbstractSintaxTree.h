@@ -11,6 +11,7 @@
 #include "symbols.h"
 
 #include "utils/ansi/ansi.h"
+#include "utils/qualified_names/qualified_names.h"
 
 // AST Node - classe base da cui ereditano gli oggetti base dell'ast
 
@@ -30,9 +31,6 @@ public:
     // true se l'espressione è di natura costante (e.g. literal)
     virtual bool isConstantExpr() const =0;
 };
-
-// helper per i qualified names
-using Qualifiers = std::vector<std::string>; //vuoto se l'expr non è un nome qualificato
 
 class NumberExpr : public Expr {
 public:

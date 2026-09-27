@@ -256,6 +256,7 @@ llvm::Constant* CodeGenerator::getConstantFromLiteral(const Expr* literal)
             if(!elemExpr->isConstantExpr()) {
                 throw std::runtime_error("codegen internal error: non-constant element in literal array");
             }
+            
             constants.push_back(generateConstLiteral(elemExpr.get()));
         }
 
@@ -328,7 +329,21 @@ llvm::Value* CodeGenerator::castValue(llvm::Value *value, PrimitiveType from, Pr
 
 llvm::Value* CodeGenerator::generateLValueAddress(const Expr* target)
 {
-    if(auto varExpr = dynamic_cast<const VariableExpr*>(target)) {
+    if(auto varExpr = dynamic_cast<const VariableExpr*>(target)) 
+    {
+        if(!varExpr->qualifiers.empty()) 
+        {
+            // variabile qualificata
+            std::string mangled = namespaceTable->mangleQualifiedName(varExpr->qualifiers, varExpr->name);
+            llvm::Value* global = Module->getGlobalVariable(mangled);
+
+            if(!global) {
+                throw std::runtime_error("codegen internal error: qualified global variable not found: " + mangled);
+            }
+            
+            return global;
+        }
+
         return scopeStack.lookupSymbol(varExpr->name).value(); // ritorna direttamente l'AllocaInst*
     }
 
