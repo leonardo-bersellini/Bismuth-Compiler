@@ -336,19 +336,19 @@ Type Parser::parseArrayType()
  * Inizia la procedura di parsing da un identifier.
  */
 
-std::pair<std::string, Qualifiers> Parser::resolveQualifiedName()
+QualifiedName Parser::resolveQualifiedName()
 {
     Token identifierTkn = advance();
 
     if(identifierTkn.type != TokenType::Identifier) {
         errorLog->addError("expected an identifier as valid name, received none", peek().position);
         recoveryHandler.synchronize({TokenType::LBrace, TokenType::RBrace});
-        std::pair<std::string, Qualifiers> p;
+        QualifiedName p;
         return p;
     }
 
-    std::pair<std::string, Qualifiers> result;
-    result.second.push_back(identifierTkn.lexeme);
+    QualifiedName result;
+    result.qualifiers.push_back(identifierTkn.lexeme);
 
     while(check(TokenType::ColonColon))
     {
@@ -359,12 +359,12 @@ std::pair<std::string, Qualifiers> Parser::resolveQualifiedName()
             break;
         }
 
-        result.second.push_back(advance().lexeme);
+        result.qualifiers.push_back(advance().lexeme);
     }
 
     //l'ultimo identifier è il name
-    result.first = std::move(result.second.back());
-    result.second.pop_back();
+    result.name = std::move(result.qualifiers.back());
+    result.qualifiers.pop_back();
 
     return result;
 }
@@ -1088,24 +1088,28 @@ std::unique_ptr<Expr> Parser::parseFactor()
         return parseArrayLiteralExpr();
     } 
 
-    // Chiamata a funzione
-    else if(check(TokenType::Identifier) && peek(1).type == TokenType::LParen)
+    // Expr che può essere qualified
+    else if(check(TokenType::Identifier)) 
     {
-        return parseFunctionCallExpr();
-    }
+        auto nameInfo = resolveQualifiedName();
 
-    // Accesso a indice di un array
-    else if(check(TokenType::Identifier) && peek(1).type == TokenType::LBracket)
-    {
-        return parseArrayAccessExpr();
-    }
+        if(check(TokenType::LParen))
+        {
+            // Call Expr
+            return parseFunctionCallExpr(nameInfo);
+        }
+        else if(check(TokenType::LBracket))
+        {
+            // Accesso a indice di un array
+            return parseArrayAccessExpr(nameInfo);
+        }
+        else {
+            // Variabile
+            return parseVariableExpr(nameInfo);
+        }
 
-    // Variabile 
-    else if(check(TokenType::Identifier))
-    {
-        return parseVariableExpr();
     }
-
+    
     // Parentesi
     else if(check(TokenType::LParen))
     {
@@ -1213,14 +1217,12 @@ std::unique_ptr<Expr> Parser::parseArrayLiteralExpr()
     return arr;
 }
 
-std::unique_ptr<Expr> Parser::parseFunctionCallExpr()
+std::unique_ptr<Expr> Parser::parseFunctionCallExpr(QualifiedName nameInfo)
 {
     auto call = make_unique_expr<CallExpr>();
 
-    auto nameInfo = resolveQualifiedName();
-
-    call->name = nameInfo.first;
-    call->qualifiers = nameInfo.second;
+    call->name = nameInfo.name;
+    call->qualifiers = nameInfo.qualifiers;
     expect(TokenType::LParen, true);
 
     std::vector<std::unique_ptr<Expr>> args;
@@ -1238,10 +1240,11 @@ std::unique_ptr<Expr> Parser::parseFunctionCallExpr()
     return call;
 }
 
-std::unique_ptr<Expr> Parser::parseArrayAccessExpr()
+std::unique_ptr<Expr> Parser::parseArrayAccessExpr(QualifiedName nameInfo)
 {
     auto base = make_unique_expr<VariableExpr>();
-    base->name = advance().lexeme; //identifier
+    base->name = nameInfo.name; 
+    base->qualifiers = nameInfo.qualifiers;
         
     expect(TokenType::LBracket, true);
     auto index = parseExpr();
@@ -1253,13 +1256,11 @@ std::unique_ptr<Expr> Parser::parseArrayAccessExpr()
     return arrAccess;
 }
 
-std::unique_ptr<Expr> Parser::parseVariableExpr()
+std::unique_ptr<Expr> Parser::parseVariableExpr(QualifiedName nameInfo)
 {
-    auto nameInfo = resolveQualifiedName();
-
     auto variableExpr = make_unique_expr<VariableExpr>();
-    variableExpr->name = nameInfo.first;
-    variableExpr->qualifiers = nameInfo.second;
+    variableExpr->name = nameInfo.name;
+    variableExpr->qualifiers = nameInfo.qualifiers;
     return variableExpr;
 }
 

@@ -25,9 +25,39 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.11.4** &ensp; <@leonardo-bersellini> &emsp; 27 . 09 . 2026
+
+ `commit:` Fixed qualified name resolution in identifier parsing *-o- ()* 
+ <br>
+ `scope:`  Parser, Codegen
+ <br>
+ `features:` corrected the qualified names controls in function parsing
+
+ ---
+
+ **V 0.11.3** &ensp; <@leonardo-bersellini> &emsp; 27 . 09 . 2026
+
+ `commit:` Fixed constant variables handling in global scope *-o- (0b775f6)* 
+ <br>
+ `scope:`  Semantics, Codegen
+ <br>
+ `features:` reworked the global variables constant values handling
+
+ ---
+
  **V 0.11.2** &ensp; <@leonardo-bersellini> &emsp; 26 . 09 . 2026
 
- `commit:` Implemented print for numeric values *-o- ()* 
+ `commit:` Cleaned Parser code *-o- (050434c)* 
+ <br>
+ `scope:`  Parser
+ <br>
+ `features:` reworked the code of parseFactor() in sub-functions
+
+ ---
+
+ **V 0.11.1** &ensp; <@leonardo-bersellini> &emsp; 26 . 09 . 2026
+
+ `commit:` Implemented print for numeric values *-o- (29d6ae5)* 
  <br>
  `scope:`  Print, Codegen, Runtimes
  <br>
