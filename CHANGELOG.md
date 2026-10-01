@@ -25,9 +25,19 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.12.0** &ensp; <@leonardo-bersellini> &emsp; 01 . 10 . 2026
+
+ `commit:` Added modulo operator *-o- ()* 
+ <br>
+ `scope:`  Feature
+ <br>
+ `features:` new operator: %
+
+ ---
+
  **V 0.11.5** &ensp; <@leonardo-bersellini> &emsp; 27 . 09 . 2026
 
- `commit:` Fixed stack overflow from repeated allocations *-o- ()* 
+ `commit:` Fixed stack overflow from repeated allocations *-o- (a17494a)* 
  <br>
  `scope:`  Codegen
  <br>

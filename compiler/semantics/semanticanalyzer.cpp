@@ -759,8 +759,8 @@ ExprAnalysisResult SemanticAnalyzer::analyzeBinaryOperation(const BinaryExpr *ex
     PrimitiveType resultType = types::binaryResultType(expr->op, leftType.asPrimitive(), rightType.asPrimitive());
 
     if(resultType == PrimitiveType::Error) {
-        errorLog->addError("operazione non valida tra tipi " +
-                types::toString(leftType) + " e " + types::toString(rightType), expr->position);
+        errorLog->addError("operator" + typeToString(expr->op) + " : invalid operation between types " +
+                types::toString(leftType) + " and " + types::toString(rightType), expr->position);
 
         return ExprAnalysisResult(Type(PrimitiveType::Error));
     }

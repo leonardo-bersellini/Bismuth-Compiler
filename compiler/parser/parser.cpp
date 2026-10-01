@@ -1027,8 +1027,8 @@ std::unique_ptr<Expr> Parser::parseTerm()
 {
     auto left = parseFactor();
     
-    // Livello superiore di precedenza matematica [* , /]
-    while(check(TokenType::Star) || check(TokenType::Slash))
+    // Livello superiore di precedenza matematica [* , /, %]
+    while(check(TokenType::Star) || check(TokenType::Slash) || check(TokenType::Percent))
     {
         TokenType op = advance().type; //consuma l'operatore
         auto right = parseFactor();

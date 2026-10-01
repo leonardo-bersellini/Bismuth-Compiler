@@ -73,6 +73,11 @@ std::vector<Token> Lexer::analiseString(const std::string &string, ErrorLog &_er
             Token ch = scanChar();
             m_tokens.push_back(ch);
         }
+        else if(c == '%')
+        {
+            Token t = createToken(TokenType::Percent);
+            m_tokens.push_back(t);
+        }
         else if(c == '+') {
             if(peek(1) == '=') {
                 Token t = createToken(TokenType::PlusEqual);

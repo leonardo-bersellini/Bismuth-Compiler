@@ -259,6 +259,12 @@ inline PrimitiveType types::binaryResultType(TokenType _operator, PrimitiveType 
 
             return arithmeticResultType(left, right);
 
+        case TokenType::Percent:
+        
+            if(left == PrimitiveType::Int && right == PrimitiveType::Int) 
+                return PrimitiveType::Int;
+            return PrimitiveType::Error;
+
         default: return PrimitiveType::Error;
             break;
     }

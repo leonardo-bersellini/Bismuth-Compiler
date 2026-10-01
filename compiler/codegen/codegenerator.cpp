@@ -1273,6 +1273,12 @@ ExprGenResult CodeGenerator::generateBinaryOp(TokenType op, ExprGenResult left, 
             [&] { return Builder.CreateSDiv(L, R, "sdivtmp"); },
             [&] { return Builder.CreateFDiv(L, R, "fdivtmp"); });
 
+    case TokenType::Percent:
+        return createArithmeticOp(
+            [&] { return Builder.CreateSRem(L, R, "sremtmp"); },
+            [&] { throw std::runtime_error("codegen internal error: invalid srem (%) float-point op"); 
+                  return nullptr; });
+
     case TokenType::EqualEqual:
         return createArithmeticOp(
             [&] { return Builder.CreateICmpEQ(L, R, "cmptmp"); },

@@ -48,6 +48,7 @@ enum class TokenType {
     Minus,
     Star,
     Slash,
+    Percent,
 
     PlusEqual,
     MinusEqual,
@@ -121,6 +122,7 @@ namespace
         {TokenType::Minus, "-"},
         {TokenType::Star, "*"},
         {TokenType::Slash, "/"},
+        {TokenType::Percent, "%"},
         {TokenType::PlusEqual, "+="},
         {TokenType::MinusEqual, "-="},
         {TokenType::StarEqual,"*="},
