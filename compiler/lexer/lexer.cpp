@@ -2,322 +2,16 @@
 
 #include <iostream>
 #include <cctype>
-#include <string>
 #include <climits>
+#include <string>
+#include <vector>
+#include <optional>
 
+#include "lexemes.h"
 #include "keywords.h"
 #include "utils/ansi/ansi.h"
 
 Lexer::Lexer() {}
-
-/*
- * Helper per impostare il valore del file sorgente corrente.
- */
-
-void Lexer::setSourceFile(const std::string& sourceFile)
-{
-    currentTextPos.source_file = sourceFile;
-}
-
-/*
- * Punto di entrata dell'analisi lessicale.
- * Questa funzione analizza una stringa assegnata dividendola in tokens secondo la grammatica del
- * linguaggio. Per dividere i caratteri in token, analizza i singoli caratteri per richiamare funzioni
- * di scan ed estrapolare tutti i caratteri che andranno a formare i tokens.
- */
-
-std::vector<Token> Lexer::analiseString(const std::string &string, ErrorLog &_errorLog)
-{
-    this->errorLog = &_errorLog;
-
-    m_tokens.clear();
-
-    buffer = string;
-
-    indexPos = 0;
-    currentTextPos.column = 0;
-    currentTextPos.line = 0;
-
-    buffer = removeAll(buffer, "\r");
-
-    while(!isAtEnd())
-    {
-        char c = peek();
-
-        if(c == ' ') {
-            advance();
-        }
-        else if(c == '\n') {
-            advance();
-        }
-        else if(c == '\t') {
-            advance();
-        }
-        else if(isDigit(c))
-        {
-            Token num = scanNumber();
-            m_tokens.push_back(num);
-        }
-        else if(isAlpha(c))
-        {
-            Token identifier = scanIdentifier();
-            m_tokens.push_back(identifier);
-        }
-        else if(c == '"')
-        {
-            Token str = scanString();
-            m_tokens.push_back(str);
-        }
-        else if(c == '\'')
-        {
-            Token ch = scanChar();
-            m_tokens.push_back(ch);
-        }
-        else if(c == '%')
-        {
-            Token t = createToken(TokenType::Percent);
-            m_tokens.push_back(t);
-        }
-        else if(c == '+') {
-            if(peek(1) == '=') {
-                Token t = createToken(TokenType::PlusEqual);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::Plus);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == '-') {
-            if(peek(1) == '=') {
-                Token t = createToken(TokenType::MinusEqual);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::Minus);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == '/')
-        {
-            if(peek(1) == '/') {
-                // commento '//'
-                while(!isAtEnd() && peek() != '\n') {
-                    advance();
-                }
-            }
-            else if(peek(1) == '*') {
-                // commento '/*'
-                while(!isAtEnd() && !(peek() == '*' && peek(1) == '/')) {
-                    advance();
-                }
-
-                if(isAtEnd()) {
-                    errorLog->addError("Unterminated multi-line comment", currentTextPos);
-                } else {
-                    advance(); //consuma '*'
-                    advance(); //consuma '/'
-                }
-            } else {
-                if(peek(1) == '=') {
-                    Token t = createToken(TokenType::SlashEqual);
-                    t.lexeme.push_back(advance());
-                    m_tokens.push_back(t);
-                } else {
-                    Token t = createToken(TokenType::Slash);
-                    m_tokens.push_back(t);
-                }
-            }
-        }
-        else if(c == '*') {
-            if(peek(1) == '=') {
-                Token t = createToken(TokenType::StarEqual);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::Star);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == '=') {
-            if(peek(1) == '=') {
-                Token t = createToken(TokenType::EqualEqual);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::Equal);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == '!') {
-            if(peek(1) == '=') {
-                Token t = createToken((TokenType::NotEqual));
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::LogicalNot);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == '&') {
-            if(peek(1) == '&') {
-                Token t = createToken(TokenType::LogicalAnd);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                //gestione &
-                advance();
-            }
-        }
-        else if(c == '|') {
-            if(peek(1) == '|') {
-                Token t = createToken(TokenType::LogicalOr);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                //gestione |
-                advance();
-            }
-        }
-        else if(c == '>') {
-            if(peek(1) == '=') {
-                Token t = createToken(TokenType::GreaterEqual);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::Greater);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == '<') {
-            if(peek(1) == '=') {
-                Token t = createToken(TokenType::LessEqual);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::Less);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == '(') {
-            Token tlparen = createToken(TokenType::LParen);
-            m_tokens.push_back(tlparen);
-        }
-        else if(c == ')') {
-            Token trparen = createToken(TokenType::RParen);
-            m_tokens.push_back(trparen);
-        }
-        else if(c == '[') {
-            Token tlbracket = createToken(TokenType::LBracket);
-            m_tokens.push_back(tlbracket);
-        }
-        else if(c == ']') {
-            Token trbracket = createToken(TokenType::RBracket);
-            m_tokens.push_back(trbracket);
-        }
-        else if(c == '{') {
-            Token tlbrace = createToken(TokenType::LBrace);
-            m_tokens.push_back(tlbrace);
-        }
-        else if(c == '}') {
-            Token trbrace = createToken(TokenType::RBrace);
-            m_tokens.push_back(trbrace);
-        }
-        else if(c == ';') {
-            Token tsemi = createToken(TokenType::Semicolon);
-            m_tokens.push_back(tsemi);
-        }
-        else if(c == ':') {
-            if(peek(1) == ':') {
-                Token t = createToken(TokenType::ColonColon);
-                t.lexeme.push_back(advance());
-                m_tokens.push_back(t);
-            } else {
-                Token t = createToken(TokenType::Colon);
-                m_tokens.push_back(t);
-            }
-        }
-        else if(c == ',') {
-            Token t = createToken(TokenType::Comma);
-            m_tokens.push_back(t);
-        }
-        else
-        {
-            Token unknown = createToken(TokenType::Unknown);
-            m_tokens.push_back(unknown);
-
-            std::string err = std::string("Carattere non riconosciuto. char: ");
-            err.push_back(c);
-            
-            errorLog->addError(err, currentTextPos);
-        }
-    }
-
-    Token eof;
-    eof.type = TokenType::EndOfFile;
-    eof.position = currentTextPos;
-    m_tokens.push_back(eof);
-
-    return m_tokens;
-}
-
-/*
- * Emette i tokens raccolti in output a console
- */
-
-void Lexer::printTokens()
-{
-    std::cout << "\nProgram Tokens:\n" << std::endl;
-    std::cout << ansi::color::bright_black;
-
-    for(Token& t : m_tokens){
-        std::cout << typeToString(t.type) << std::endl;
-    }
-    std::cout << ansi::color::reset;
-}
-
-/*
- * Genera un token basandosi su un tipo specifico
- */
-
-Token Lexer::createToken(TokenType type) {
-    Token t;
-    t.type = type;
-    t.position = currentTextPos;
-    t.lexeme = advance();
-    return t;
-}
-
-/*
- * Analizza i caratteri futuri nel buffer che sta vanendo analizzato, scorrendo di un numero
- * assegnato di posizioni.
- */
-
-char Lexer::peek(int offset) const
-{
-    int position = indexPos + offset;
-    if(isAtEnd(position)) return char('\0');
-    return buffer.at(position);
-}
-
-/*
- * Consuma il carattere corrente, aggiornando il buffer, l'indice e la posizione espressa in righe-colonne.
- */
-
-char Lexer::advance() {
-    if(isAtEnd()) return '\0';
-
-    char r = buffer.at(indexPos);
-
-    if(r == '\n') {
-        currentTextPos.line++;
-        currentTextPos.column = 1;
-    }
-    else currentTextPos.column++;
-
-    indexPos++;
-    return r;
-}
 
 /*
  * Queste due versioni della stessa funzione controllano se il buffer è terminato, in base alla
@@ -342,11 +36,187 @@ bool Lexer::isDigit(const char& c) const {
 }
 
 bool Lexer::isAlpha(const char& c) const {
-    return std::isalpha(static_cast<unsigned char>(c));
+    return c == '_' || std::isalpha(static_cast<unsigned char>(c));
 }
 
 /*
- * Questa funzione esegue l'analisi dei caratteri a partire da dei numeri, delimitando dei token
+ * Analizza i caratteri futuri nel buffer che sta vanendo analizzato, scorrendo di un numero
+ * assegnato di posizioni.
+ */
+
+char Lexer::peek(int offset) const
+{
+    int position = indexPos + offset;
+    if(isAtEnd(position)) return char('\0');
+    return buffer.at(position);
+}
+
+/*
+ * Consuma il carattere corrente, aggiornando il buffer, 
+ * l'indice e la posizione espressa in righe-colonne.
+ */
+
+char Lexer::advance() {
+    if(isAtEnd()) return '\0';
+
+    char r = buffer.at(indexPos);
+
+    if(r == '\n') {
+        currentTextPos.line++;
+        currentTextPos.column = 1;
+    }
+    else currentTextPos.column++;
+
+    indexPos++;
+    return r;
+}
+
+/*
+ * Genera un token basandosi su un tipo dato
+ */
+
+Token Lexer::createToken(TokenType type) {
+    Token t;
+    t.type = type;
+    t.position = currentTextPos;
+    t.lexeme = advance();
+    return t;
+}
+
+
+/*
+ * Helper per impostare il valore del file sorgente corrente.
+ */
+
+void Lexer::setSourceFile(const std::string& sourceFile)
+{
+    currentTextPos.source_file = sourceFile;
+}
+
+/*
+ * Stampa in output a console i token analizzati
+ */
+
+void Lexer::printTokens()
+{
+    std::cout << "\nProgram tokens:\n" << std::endl;
+    std::cout << ansi::color::bright_black;
+ 
+    for(Token& t : m_tokens){
+        std::cout << typeToString(t.type) << std::endl;
+    }
+    std::cout << ansi::color::reset;
+}
+
+/*
+ * Punto di entrata dell'analisi lessicale.
+ * Questa funzione analizza una stringa assegnata dividendola in tokens secondo la grammatica del
+ * linguaggio. Per dividere i caratteri in token, analizza i singoli caratteri per richiamare funzioni
+ * di scan ed estrapolare tutti i caratteri che andranno a formare i tokens.
+ */
+
+std::vector<Token> Lexer::analiseString(const std::string &string, ErrorLog &_errorLog)
+{
+    this->errorLog = &_errorLog;
+    buffer = string;
+
+    m_tokens.clear();
+    indexPos = 0;
+    currentTextPos.column = 1;
+    currentTextPos.line = 1;
+
+    while(!isAtEnd())
+    {
+        skipIgnored();
+        if(isAtEnd()) break;
+
+        char c = peek();
+
+        if(isDigit(c))       m_tokens.push_back(scanNumber());
+        else if(isAlpha(c))  m_tokens.push_back(scanIdentifier());
+        else if(c == '"')    m_tokens.push_back(scanString());
+        else if(c == '\'')   m_tokens.push_back(scanChar());
+        else if(auto op = scanOperator()) m_tokens.push_back(*op);
+        else
+        {
+            m_tokens.push_back(createToken(TokenType::Unknown));
+            errorLog->addError(std::string("carattere non riconosciuto. char: ") + c, currentTextPos);
+        }
+    }
+
+    Token eof;
+    eof.type = TokenType::EndOfFile;
+    eof.position = currentTextPos;
+    m_tokens.push_back(eof);
+
+    return m_tokens;
+}
+
+/*
+ * Questa funzione gestisce la lettura di tutti i caratteri ignorati, ovvero caratteri nascosti
+ * da commenti oppure sequenze speciali non riconosciute come tokens.
+ */
+
+void Lexer::skipIgnored()
+{
+    while(!isAtEnd())
+    {
+        char c = peek();
+
+        if(c == ' ' || c == '\n' || c == '\t') {
+            advance();
+        }
+        else if(c == '/' && peek(1) == '/') {
+            while(!isAtEnd() && peek() != '\n') advance();
+        }
+        else if(c == '/' && peek(1) == '*') {
+            advance(); // '/'
+            advance(); // '*'
+
+            while(!isAtEnd() && !(peek() == '*' && peek(1) == '/')) advance();
+
+            if(isAtEnd()) {
+                errorLog->addError("Unterminated multi-line comment", currentTextPos);
+            } else {
+                advance(); // '*'
+                advance(); // '/'
+            }
+        }
+        else break;
+    }
+}
+
+/*
+ * Si occupa di individuare gli operators lessicali, ovvero quei lexemes fissi che rappresentano
+ * di per sè un token. Lo sono tutti i lexemes della tabella operatorsTable.
+ * Questa funzione utilizza un approccio detto "maximal munch", ovvero considera corretto il token
+ * formato dal maggior numero possibile di caratteri.
+ * */
+
+std::optional<Token> Lexer::scanOperator()
+{
+    for(std::size_t len = getMaxOperatorLen(); len > 0; --len)
+    {
+        std::string candidate;
+        for(std::size_t i = 0; i < len; ++i)
+            candidate.push_back(peek(static_cast<int>(i)));
+
+        auto it = operatorsTable.find(candidate);
+        if(it == operatorsTable.end()) continue;
+
+        Token t;
+        t.type = it->second;
+        t.position = currentTextPos;
+        for(std::size_t i = 0; i < len; ++i)
+            t.lexeme.push_back(advance());
+        return t;
+    }
+    return std::nullopt;
+}
+
+
+/*
+ * Questa funzione esegue l'analisi dei caratteri numerici, delimitando dei token
  * che corrispondono a numeri letterali.
  */
 
@@ -407,7 +277,7 @@ Token Lexer::scanIdentifier() {
     std::string identifier; //testo dell'identificatore
 
     //controllo lettere
-    while(!isAtEnd() && (isDigit(peek()) || isAlpha(peek()) || peek() == '_')) {
+    while(!isAtEnd() && (isDigit(peek()) || isAlpha(peek()))) {
         char l = advance();
         identifier.push_back(l);
     }
@@ -424,6 +294,10 @@ Token Lexer::scanIdentifier() {
 
     return token;
 }
+
+/*
+ * Esegue l'analisi dei caratteri per indentificare una stringa letterale
+ */
 
 Token Lexer::scanString() {
 
@@ -478,6 +352,10 @@ Token Lexer::scanString() {
     return returnTok;
 }
 
+/*
+ * Esegue l'analisi dei caratteri per indentificare un char letterale
+ */
+
 Token Lexer::scanChar() {
     TextPosition pos = currentTextPos;
     advance(); //consuma '
@@ -509,17 +387,4 @@ Token Lexer::scanChar() {
     tok.lexeme = std::string(1, ch);
     tok.position = pos;
     return tok;
-}
-
-std::string Lexer::removeAll(std::string str, const std::string& sub)
-{
-    if (sub.empty())
-        return str;
-
-    std::size_t pos = 0;
-    while ((pos = str.find(sub, pos)) != std::string::npos) {
-        str.erase(pos, sub.length());
-    }
-
-    return str;
 }

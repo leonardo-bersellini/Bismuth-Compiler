@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 #include "token.h"
 #include "errors/errorlog.h"
@@ -13,7 +14,6 @@ public:
     Lexer();
 
     void setSourceFile(const std::string& sourceFile);
-    
     std::vector<Token> analiseString(const std::string& string, ErrorLog& _errorLog);
 
     void printTokens();
@@ -25,8 +25,8 @@ private:
     TextPosition currentTextPos;
     ErrorLog* errorLog;
 
-    char peek(int offset = 0) const;  //guarda i caratteri futuri con un offset specificato > 0
-    char advance();                   //mangia il carattere seguente rispetto all'indica del lexer
+    char peek(int offset = 0) const;  
+    char advance(); 
 
     bool isAtEnd() const;
     bool isAtEnd(int pos) const;
@@ -36,14 +36,13 @@ private:
 
     Token createToken(TokenType type);
 
+    void skipIgnored();
+    std::optional<Token> scanOperator();
+
     Token scanNumber();
     Token scanIdentifier();
     Token scanString();
     Token scanChar();
-
-    std::string removeAll(std::string str, const std::string& sub);
-
-    std::string tokenToString(Token t);
 
 };
 
