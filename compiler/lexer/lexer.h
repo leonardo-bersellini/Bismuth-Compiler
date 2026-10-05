@@ -38,6 +38,8 @@ private:
 
     void skipIgnored();
     std::optional<Token> scanOperator();
+    
+    Token scanDirective();
 
     Token scanNumber();
     Token scanIdentifier();

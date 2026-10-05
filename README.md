@@ -21,11 +21,11 @@ The project is continuously evolving, becoming progressively more complete and r
 ## Pipeline
 
 ```
- ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌───────────────────┐     ┌─────────┐     ┌─────────────┐     ┌────────────┐
- │  Lexer  │ --> │ Parser  │ --> │   AST   │ --> │  SemanticAnalyzer │ --> │ Codegen │ --> │ Object file │ --> │ Executable │
- └─────────┘     └─────────┘     └─────────┘     └───────────────────┘     └─────────┘     └─────────────┘     └────────────┘
+ ┌───────────────┐     ┌─────────┐     ┌─────────┐     ┌───────────────────┐     ┌─────────┐     ┌─────────────┐     ┌────────────┐
+ │ Preprocessor  │ --> │ Parser  │ --> │   AST   │ --> │  SemanticAnalyzer │ --> │ Codegen │ --> │ Object file │ --> │ Executable │
+ └───────────────┘     └─────────┘     └─────────┘     └───────────────────┘     └─────────┘     └─────────────┘     └────────────┘
 ```
-
+- **Preprocessor** — orchestrate the lexer execution and resolves special directives
 - **Lexer** — turns the source code into a sequence of tokens
 - **Parser** — builds the AST from the tokens, checking syntax
 - **AST** — tree representation of the program, Expr/Stmt nodes
@@ -159,6 +159,7 @@ compiler/
 ├── constants/
 ├── driver/
 ├── errors/
+├── preprocessor/
 ├── lexer/
 ├── parser/
 ├── semantics/

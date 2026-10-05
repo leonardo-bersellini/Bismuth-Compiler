@@ -137,6 +137,7 @@ std::vector<Token> Lexer::analiseString(const std::string &string, ErrorLog &_er
         else if(c == '"')    m_tokens.push_back(scanString());
         else if(c == '\'')   m_tokens.push_back(scanChar());
         else if(auto op = scanOperator()) m_tokens.push_back(*op);
+        else if(c == '#')    m_tokens.push_back(scanDirective());
         else
         {
             m_tokens.push_back(createToken(TokenType::Unknown));
@@ -212,6 +213,21 @@ std::optional<Token> Lexer::scanOperator()
         return t;
     }
     return std::nullopt;
+}
+
+/*
+ * Questa funzione esegue l'analisi di una direttiva del preprocessore, ignorandone il contenuto.
+ * La direttiva corrisponde ad un identifier, preceduta da un token speciale.
+ */
+
+Token Lexer::scanDirective()
+{
+    advance(); //consuma '#'
+
+    Token directive = scanIdentifier();
+
+    directive.type = TokenType::PreprocessorDirective;
+    return directive;
 }
 
 

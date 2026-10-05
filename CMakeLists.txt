@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(MyCompiler 
-    VERSION 0.12.1
+    VERSION 0.13.0
     LANGUAGES CXX
     DESCRIPTION "Bismuth: compilatore sviluppato in C++ e LLVM"
 )
@@ -61,6 +61,11 @@ add_library(BismuthCore STATIC
   compiler/errors/errorlog.h
   compiler/errors/recovery/recoveryhandler.cpp 
   compiler/errors/recovery/recoveryhandler.h
+
+  compiler/preprocessor/preprocessor.h
+  compiler/preprocessor/preprocessor.cpp
+  compiler/preprocessor/sourcemanager/sourcemanager.h
+  compiler/preprocessor/sourcemanager/sourcemanager.cpp
 
   compiler/lexer/lexer.cpp 
   compiler/lexer/lexer.h

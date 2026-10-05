@@ -5,6 +5,7 @@
 #include <fstream>
 #include <filesystem>
 
+#include "preprocessor/preprocessor.h"
 #include "lexer/lexer.h"
 #include "parser/parser.h"
 #include "semantics/semanticanalyzer.h"
@@ -291,7 +292,7 @@ int CompilerDriver::execute(const CompilerOptions &options)
 
 bool CompilerDriver::compilePipeline(const std::string &source, const CompilerOptions &options)
 {
-    Lexer lexer;
+    PreProcessor preprocessor;
     Parser parser;
     SemanticAnalyzer analyzer;
     ErrorLog errorLog;
@@ -307,8 +308,7 @@ bool CompilerDriver::compilePipeline(const std::string &source, const CompilerOp
     }
 
     // Lettura e parsing del codice, indipendente dai flags
-    lexer.setSourceFile(options.inputFile);
-    const std::vector<Token> tokens = lexer.analiseString(source, errorLog);
+    const std::vector<Token> tokens = preprocessor.process(options.inputFile, errorLog);
 
     if(errorLog.hasErrors())
     {
@@ -355,7 +355,7 @@ bool CompilerDriver::compilePipeline(const std::string &source, const CompilerOp
     {
         reportCliMsg("\nsource text:\n" + clr::bright_black + source + clr::reset);
 
-        lexer.printTokens();
+        //lexer.printTokens();
 
         reportCliMsg("\nprogram statements:\n");
         for (const auto& stmt : program->statements) {

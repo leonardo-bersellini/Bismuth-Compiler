@@ -6,6 +6,14 @@
 #include <stdexcept>
 
 struct TextPosition {
+public:
+    TextPosition() = default;
+
+    TextPosition(int l, int c) : line(l), column(c) {}
+
+    explicit TextPosition(int l, int c, std::string file)
+        : line(l), column(c), source_file(file) {}
+        
     int line;
     int column;
     std::string source_file;
@@ -78,6 +86,9 @@ enum class TokenType {
     Colon,      //:
     ColonColon, //::
     Comma,
+
+    PreprocessorDirective,
+
     EndOfFile,
     Unknown,
 };
@@ -147,6 +158,7 @@ namespace
         {TokenType::Colon,  ":"},
         {TokenType::ColonColon, "::"},
         {TokenType::Comma,","},
+        {TokenType::PreprocessorDirective, "#directive"},
         {TokenType::EndOfFile,"EOF"},
         {TokenType::Unknown,"unknown"},
     };
