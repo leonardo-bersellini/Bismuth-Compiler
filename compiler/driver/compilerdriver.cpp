@@ -5,6 +5,8 @@
 #include <fstream>
 #include <filesystem>
 
+#include "commandlineparser/commandlineparser.h"
+
 #include "preprocessor/preprocessor.h"
 #include "lexer/lexer.h"
 #include "parser/parser.h"
@@ -12,9 +14,9 @@
 #include "errors/errorlog.h"
 #include "codegen/codegenerator.h"
 
-#include "commandlineparser/commandlineparser.h"
 #include "utils/ansi/ansi.h"
 #include "utils/namespace/namespace.h"
+#include "utils/pretty_print/prettyprint.h"
 
 #include "version.h" //generato da cmake
 
@@ -355,7 +357,7 @@ bool CompilerDriver::compilePipeline(const std::string &source, const CompilerOp
     {
         reportCliMsg("\nsource text:\n" + clr::bright_black + source + clr::reset);
 
-        //lexer.printTokens();
+        printProgramTokens(tokens);
 
         reportCliMsg("\nprogram statements:\n");
         for (const auto& stmt : program->statements) {

@@ -94,21 +94,6 @@ void Lexer::setSourceFile(const std::string& sourceFile)
 }
 
 /*
- * Stampa in output a console i token analizzati
- */
-
-void Lexer::printTokens()
-{
-    std::cout << "\nProgram tokens:\n" << std::endl;
-    std::cout << ansi::color::bright_black;
- 
-    for(Token& t : m_tokens){
-        std::cout << typeToString(t.type) << std::endl;
-    }
-    std::cout << ansi::color::reset;
-}
-
-/*
  * Punto di entrata dell'analisi lessicale.
  * Questa funzione analizza una stringa assegnata dividendola in tokens secondo la grammatica del
  * linguaggio. Per dividere i caratteri in token, analizza i singoli caratteri per richiamare funzioni

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(MyCompiler 
-    VERSION 0.13.0
+    VERSION 0.13.1
     LANGUAGES CXX
     DESCRIPTION "Bismuth: compilatore sviluppato in C++ e LLVM"
 )
@@ -69,6 +69,7 @@ add_library(BismuthCore STATIC
 
   compiler/lexer/lexer.cpp 
   compiler/lexer/lexer.h
+  compiler/lexer/lexemes.h
 
   compiler/parser/parser.cpp 
   compiler/parser/parser.h
@@ -83,7 +84,9 @@ add_library(BismuthCore STATIC
   compiler/utils/stack/template_stack.h 
   compiler/utils/stack/scope_stack.h
   compiler/utils/namespace/namespace_table.h
-
+  compiler/utils/pretty_print/prettyprint.h
+  compiler/utils/pretty_print/ast.h
+  compiler/utils/pretty_print/tokens.h
 )
 
 

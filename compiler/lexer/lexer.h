@@ -16,8 +16,6 @@ public:
     void setSourceFile(const std::string& sourceFile);
     std::vector<Token> analiseString(const std::string& string, ErrorLog& _errorLog);
 
-    void printTokens();
-
 private:
     std::vector<Token> m_tokens;
     std::string buffer;
