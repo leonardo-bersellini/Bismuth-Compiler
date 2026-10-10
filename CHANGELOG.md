@@ -25,9 +25,49 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.13.2** &ensp; <@leonardo-bersellini> &emsp; 10 . 10 . 2026
+
+ `commit:` Include dirs in preprocessor *-o- ()* 
+ <br>
+ `scope:`  preprocessor
+ <br>
+ `features:` added the include directories in the sourcemanager and preprocessor
+
+ ---
+
+ **V 0.13.1** &ensp; <@leonardo-bersellini> &emsp; 07 . 10 . 2026
+
+ `commit:` Pretty-print utility module *-o- (9e84be6)* 
+ <br>
+ `scope:`  utility
+ <br>
+ `features:` reorganized the pretty-print logic inside a new utility file
+
+ ---
+
+ **V 0.13.0** &ensp; <@leonardo-bersellini> &emsp; 05 . 10 . 2026
+
+ `commit:` Added Preprocessor *-o- (2ffbfa7)* 
+ <br>
+ `scope:`  Preprocessor, lexer, driver
+ <br>
+ `features:` new bismuth component: preprocessor
+
+ ---
+
+ **V 0.12.1** &ensp; <@leonardo-bersellini> &emsp; 03 . 10 . 2026
+
+ `commit:` Refactored lexer structure *-o- (ea57832)* 
+ <br>
+ `scope:`  lexer
+ <br>
+ `features:` refactor of the internal lexer structure
+
+ ---
+
  **V 0.12.0** &ensp; <@leonardo-bersellini> &emsp; 01 . 10 . 2026
 
- `commit:` Added modulo operator *-o- ()* 
+ `commit:` Added modulo operator *-o- (b929d0a)* 
  <br>
  `scope:`  Feature
  <br>

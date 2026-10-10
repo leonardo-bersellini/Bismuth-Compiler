@@ -14,6 +14,8 @@ class PreProcessor
 public:
     std::vector<Token> process(const std::string& mainFile, ErrorLog& errorLog);
 
+    void addIncludeDir(const std::string& dir);
+
 private:
     Lexer m_lexer;
     SourceManager m_sourceManager;

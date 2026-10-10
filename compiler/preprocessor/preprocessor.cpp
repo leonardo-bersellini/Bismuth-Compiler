@@ -39,6 +39,15 @@ std::vector<Token> PreProcessor::process(const std::string& mainFile, ErrorLog& 
 }
 
 /*
+ * Aggiunge un percorso di inclusione alla lista interna del sourceManager.
+ */
+
+void PreProcessor::addIncludeDir(const std::string& dir)
+{
+    this->m_sourceManager.addIncludeDirectory(dir);
+}
+
+/*
  * Funzione di process vera e propria. Gestisce le risorse dei file con il sourcemanager iterno,
  * tokenizza i contenuti e richiama le funzioni di esecuzione delle direttive.
  * Tramite chiamate ricorsive (dalle funzioni di gestione delle direttive), il risultato
@@ -50,7 +59,9 @@ std::vector<Token> PreProcessor::processFile(const std::string& path)
     std::vector<Token> output;
 
     //risoluzione del path: path assoluto tramite include dirs
-    const auto resolved = m_sourceManager.resolvePath(path);
+    const std::string includingFile = m_fileStack.empty() ? "" : m_fileStack.back();
+    const auto resolved = m_sourceManager.resolvePath(path, includingFile);
+    
     if(!resolved) {
         m_errorLog->addError(std::string("could not find included file: ") + path, TextPosition(0, 0, m_fileStack.back()));
         return output;
