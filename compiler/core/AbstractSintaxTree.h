@@ -7,8 +7,8 @@
 #include <vector>
 #include <iostream>
 
-#include "token.h"
-#include "symbols.h"
+#include "core/tokens.h"
+#include "core/symbols.h"
 
 #include "utils/ansi/ansi.h"
 #include "utils/qualified_names/qualified_names.h"

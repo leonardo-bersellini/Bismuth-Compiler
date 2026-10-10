@@ -3,7 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "token.h" //TextPosition
+
+#include "core/tokens.h" //TextPosition
 
 enum class LogType 
 {

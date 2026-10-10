@@ -4,7 +4,7 @@
 #include <string>
 
 #include "namespace_table.h"
-#include "constants/symbols.h"
+#include "core/symbols.h"
 
 // Tabella di gestione dei namespace
 using NamespaceTable = namespace_table<std::string, Symbol>;

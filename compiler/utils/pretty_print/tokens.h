@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-#include "token.h"
+#include "core/tokens.h"
 #include "utils/ansi/ansi.h"
 
 inline void printProgramTokens(const std::vector<Token>& tokens)

@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 
-#include "constants/token.h"
+#include "core/tokens.h"
 
 /*
  * Tabella degli operatori lessicali: lexemes che costituiscono un token.

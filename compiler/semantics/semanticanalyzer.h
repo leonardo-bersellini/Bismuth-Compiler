@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <string>
 
-#include "symbols.h"
-#include "AbstractSintaxTree.h"
+#include "core/symbols.h"
+#include "core/AbstractSintaxTree.h"
 #include "errors/errorlog.h"
 
 #include "utils/stack/scope_stack.h"

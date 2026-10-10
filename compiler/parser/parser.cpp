@@ -2,7 +2,8 @@
 
 #include <memory>
 #include <iostream>
-#include "keywords.h"
+
+#include "core/keywords.h"
 
 Parser::Parser() 
     : recoveryHandler(errorLog, tokens, currentPos)

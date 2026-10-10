@@ -3,7 +3,8 @@
 
 #include <unordered_map>
 #include <string>
-#include "token.h"
+
+#include "core/tokens.h"
 
 inline const std::unordered_map<std::string, TokenType> keywords = {
     {"int", TokenType::TypeKeyword},

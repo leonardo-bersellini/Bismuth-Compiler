@@ -8,7 +8,7 @@
 #include <optional>
 
 #include "lexemes.h"
-#include "keywords.h"
+#include "core/keywords.h"
 #include "utils/ansi/ansi.h"
 
 Lexer::Lexer() {}

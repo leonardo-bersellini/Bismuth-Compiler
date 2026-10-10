@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "AbstractSintaxTree.h"
+#include "core/AbstractSintaxTree.h"
 
 inline void printAST(const Expr* node, int depth = 0) {
     std::string indent(depth * 2, ' ');

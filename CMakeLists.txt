@@ -44,11 +44,11 @@ add_library(BismuthCore STATIC
   compiler/codegen/linker/linker.h
   compiler/codegen/linker/linker.cpp
   
-  compiler/constants/AbstractSintaxTree.h 
-  compiler/constants/keywords.h 
-  compiler/constants/symbols.h 
-  compiler/constants/token.h 
-  compiler/constants/types.h
+  compiler/core/AbstractSintaxTree.h 
+  compiler/core/keywords.h 
+  compiler/core/symbols.h 
+  compiler/core/tokens.h 
+  compiler/core/types.h
 
   compiler/driver/compilerdriver.cpp 
   compiler/driver/compilerdriver.h 
@@ -94,7 +94,6 @@ add_library(BismuthCore STATIC
 
 target_include_directories(BismuthCore PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/constants
 )
 
 target_include_directories(BismuthCore PUBLIC ${CMAKE_BINARY_DIR}/generated)

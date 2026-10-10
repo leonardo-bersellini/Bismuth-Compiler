@@ -7,7 +7,7 @@
 #include <typeindex>
 #include <typeinfo>
 
-#include "AbstractSintaxTree.h"
+#include "core/AbstractSintaxTree.h"
 
 inline const std::array<std::type_index, 3> valid_global_stmts = 
 {

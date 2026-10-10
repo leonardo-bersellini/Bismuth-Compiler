@@ -5,7 +5,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include "token.h"
+#include "core/tokens.h"
 #include "sourcemanager/sourcemanager.h"
 #include "lexer/lexer.h"
 

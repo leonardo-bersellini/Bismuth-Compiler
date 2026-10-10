@@ -19,7 +19,7 @@
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/TargetParser/Host.h>
 
-#include "AbstractSintaxTree.h"
+#include "core/AbstractSintaxTree.h"
 
 #include "stacks/codegen_scopestack.h"
 #include "stacks/loop_stack.h"

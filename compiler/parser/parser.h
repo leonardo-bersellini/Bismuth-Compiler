@@ -4,12 +4,12 @@
 #include <vector>
 #include <memory>
 
-#include "token.h"
-#include "AbstractSintaxTree.h"
+#include "core/tokens.h"
+#include "core/AbstractSintaxTree.h"
 #include "errors/errorlog.h"
 #include "errors/recovery/recoveryhandler.h"
 
-#include "symbols.h"
+#include "core/symbols.h"
 
 #include "utils/qualified_names/qualified_names.h"
 
