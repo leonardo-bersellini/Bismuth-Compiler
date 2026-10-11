@@ -98,8 +98,8 @@ Then follow those steps:
 
 ```bash
 # clone the repository
-git clone https://github.com/leonardo-bersellini/MyCompiler 
-cd mycompiler
+git clone https://github.com/leonardo-bersellini/Bismuth-Compiler 
+cd bismuth-compiler
 
 # then build with cmake
 cmake -S . -B build -DLLVM_DIR="/path/to/llvm-install/lib/cmake/llvm"
@@ -121,6 +121,7 @@ cmake --build build
 | `--verbose` | Shows detailed information during execution |
 | `--no-generation` | Compiles but does not generate any output file |
 | `--hide-warnings` | Hide collected warnings |
+| `--no-ansi` | Disable the ansi mode for output colors | 
 
 ---
 
@@ -210,7 +211,7 @@ If you use, modify, or distribute Bismuth or a derivative work, please preserve 
 For example:
 
 > This project is based on Bismuth Compiler by Leonardo Bersellini.  
-> Original project: https://github.com/leonardo-bersellini/MyCompiler
+> Original project: https://github.com/leonardo-bersellini/Bismuth-Compiler
 
 This attribution is requested to preserve the connection with the original Bismuth project and is in addition to the requirements of the MIT License.
 

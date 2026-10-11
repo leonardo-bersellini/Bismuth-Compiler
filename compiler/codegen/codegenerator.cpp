@@ -24,7 +24,7 @@ namespace clr = ansi::color;
 CodeGenerator::CodeGenerator()
     : Builder(Context)
 {
-    Module = std::make_unique<llvm::Module>("mycompiler_module", Context);
+    Module = std::make_unique<llvm::Module>("bsm-compiler_module", Context);
 }
 
 /*

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(MyCompiler 
+project(BismuthCompiler 
     VERSION 0.13.2
     LANGUAGES CXX
     DESCRIPTION "Bismuth: compilatore sviluppato in C++ e LLVM"
 )
 
-# NOME DEL PROGETTO : MYCOMPILER
+# NOME DEL PROGETTO : BISMUTH-COMPILER
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
