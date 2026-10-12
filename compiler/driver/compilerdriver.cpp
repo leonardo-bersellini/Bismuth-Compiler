@@ -274,6 +274,11 @@ int CompilerDriver::execute(const CompilerOptions &options)
         sourceCode.append(line + "\n");
     }
 
+    if(sourceCode.empty()) {
+        reportCliMsg("input file is empty");
+        return 0;
+    }
+
     // Pipeline di compilazione
     bool good = compilePipeline(sourceCode, options);
 
