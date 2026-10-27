@@ -232,6 +232,11 @@ public:
     std::unique_ptr<Expr> content;
 };
 
+class InputStmt : public Stmt {
+public:
+    std::unique_ptr<Expr> target;
+};
+
 class ErrorStmt : public Stmt {
 public:
     //void, placeholder per error stmt

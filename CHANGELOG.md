@@ -25,9 +25,29 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.14.0** &ensp; <@leonardo-bersellini> &emsp; 27 . 10 . 2026
+
+ `commit:` Built-In input function *-o- ()* 
+ <br>
+ `scope:`  All
+ <br>
+ `features:` implemented a new stmt, that reads the user input from console
+
+ ---
+
+ **V 0.13.3** &ensp; <@leonardo-bersellini> &emsp; 12 . 10 . 2026
+
+ `commit:` Fixed crash on empty file *-o- (6b6873b)* 
+ <br>
+ `scope:`  driver
+ <br>
+ `features:` small fix resolving a crash on an empty file as input
+
+ ---
+
  **V 0.13.2** &ensp; <@leonardo-bersellini> &emsp; 10 . 10 . 2026
 
- `commit:` Include dirs in preprocessor *-o- ()* 
+ `commit:` Include dirs in preprocessor *-o- (197e846)* 
  <br>
  `scope:`  preprocessor
  <br>

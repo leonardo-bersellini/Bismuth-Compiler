@@ -61,6 +61,7 @@ private:
     std::unique_ptr<DefaultStmt> parseDefaultStmt();
     std::unique_ptr<Stmt> parseNamespaceStmt();
     std::unique_ptr<Stmt> parsePrintStmt();
+    std::unique_ptr<Stmt> parseInputStmt();
     
 
     std::unique_ptr<Expr> parseExpr();

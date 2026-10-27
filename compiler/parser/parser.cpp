@@ -216,6 +216,10 @@ std::unique_ptr<Stmt> Parser::parseStatement()
     {
         return parsePrintStmt();
     } 
+    else if(check(TokenType::InputKeyword))
+    {
+        return parseInputStmt();
+    }
     else {
         // Espressione
 
@@ -812,6 +816,26 @@ std::unique_ptr<Stmt> Parser::parsePrintStmt()
     print->content = std::move(expr);
 
     return print;
+}
+
+/*
+ * Questa funzione si occupa del parsing degli stmt di tipo "get-input".
+ * Ovvero le chiamate built-in alle funzioni runtime di read della console.
+ * Struttura: input-keyword <expr>, dove l'espressione è una variabile dove salvare il
+ * valore letto in input.
+ */
+
+std::unique_ptr<Stmt> Parser::parseInputStmt()
+{
+    advance(); //consuma keyword
+
+    std::unique_ptr<Expr> expr = parseExpr();
+    expect(TokenType::Semicolon, true);
+
+    auto read = make_unique_stmt<InputStmt>();
+    read->target = std::move(expr);
+
+    return read;
 }
 
 /**

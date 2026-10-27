@@ -28,6 +28,7 @@ inline const std::unordered_map<std::string, TokenType> keywords = {
     {"const", TokenType::ConstKeyword},
     {"namespace", TokenType::NamespaceKeyword},
     {"print", TokenType::PrintKeyword},
+    {"read", TokenType::InputKeyword},
 };
 
 #endif // KEYWORDS_H

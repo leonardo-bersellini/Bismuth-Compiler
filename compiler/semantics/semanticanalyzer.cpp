@@ -166,6 +166,12 @@ void SemanticAnalyzer::analyzeStmt(const Stmt *stmt)
         analyzePrint(s);
     }
 
+    // ReadInput Call
+    else if(auto s = dynamic_cast<const InputStmt*>(stmt))
+    {
+        analyzeInput(s);
+    }
+
     // Errore
     else if(auto s = dynamic_cast<const ErrorStmt*>(stmt))
     {
@@ -479,6 +485,43 @@ void SemanticAnalyzer::analyzePrint(const PrintStmt* s)
         errorLog->addError("invalid call to print() function using an array value as parameter.", s->position);
         return;
     }
+}
+
+/*
+ * Analisi dello stmt di read (built-in function di input).
+ * L'espressione target deve essere una variabile valida dove salvare un valore.
+ */
+
+void SemanticAnalyzer::analyzeInput(const InputStmt* s)
+{
+    //controllo di target valido
+    if(!(dynamic_cast<const VariableExpr*>(s->target.get()) || dynamic_cast<const ArrayAccessExpr*>(s->target.get()))) {
+        errorLog->addError("could not read and save a value inside an expression that is not a variable", s->position);
+        return;
+    }
+
+    ExprAnalysisResult r = analyzeExpr(s->target.get());
+
+    if(r.type.isError()) {
+        errorLog->addError("could not read and save a value on a variable of type <error>", s->position);
+        return;
+    }
+    if(r.isConst) {
+        errorLog->addError("could not overwrite a constant value with console input", s->position);
+        return;
+    }
+    if(r.type.isArray()) {
+        errorLog->addError("invalid call to \'get-input\' on a target of array nature", s->position);
+        return;
+    }
+
+    //update futuro
+    if(r.type.is(PrimitiveType::Double)) {
+        errorLog->addError("read function (get-input) is not yet implemented for double types", s->position);
+        return;
+    }
+
+    return;
 }
 
 /*

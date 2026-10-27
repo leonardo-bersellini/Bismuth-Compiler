@@ -552,6 +552,12 @@ void CodeGenerator::generateStmt(const Stmt *stmt)
         generatePrintStmt(s);
     }
 
+    // Read Stmt
+    else if(auto s = dynamic_cast<const InputStmt*>(stmt))
+    {
+        generateInputStmt(s);
+    }
+
     return;
 }
 
@@ -961,6 +967,72 @@ void CodeGenerator::generatePrintStmt(const PrintStmt* st)
 
     if(!handled) {
         throw std::runtime_error("codegen internal error: unsupported type for print. type: " + types::toString(expr.type));
+    }
+
+    return;
+}
+
+/*
+ * Questa funzione si occupa della generazione della funzione built-in di get-input.
+ * Come per la funzione di print, la funzione di input varia in base al tipo del target,
+ * ovvero in base al tipo della variabile da salvare.
+ */
+
+void CodeGenerator::generateInputStmt(const InputStmt* st)
+{
+    llvm::Value* targetAddr = generateLValueAddress(st->target.get());
+    Type targetType = getType(getAllocatedType(targetAddr));
+
+    llvm::Type* boolTy = getLLVMType(Type(PrimitiveType::Bool));
+    llvm::Type* targetTy = getLLVMType(targetType);
+
+    // crea una chimata alla funzione runtime corretta
+    // il runtime varia in base al tipo del target
+    auto getInputWithConversion = [&](const std::string funcName)
+    {
+        //firma delle funzioni runtime: bool <runtime_name>(targetTy&)
+        llvm::FunctionType* funcTy = llvm::FunctionType::get(boolTy, 
+                                            //passaggio per riferimento
+                                            { llvm::PointerType::getUnqual(targetTy) }, 
+                                            false);
+        llvm::FunctionCallee callee = Module->getOrInsertFunction(funcName, funcTy);
+
+        Builder.CreateCall(callee, { targetAddr });
+    };
+
+    auto getInputString = [&](llvm::Value* str, const size_t len)
+    {
+        llvm::Type* charPtrTy = llvm::PointerType::getUnqual(llvm::Type::getInt8Ty(Context));
+        llvm::Type* sizeTy = llvm::Type::getInt64Ty(Context); //la funzione runtime legge size_t (uint64)
+        llvm::Value* lenValue = llvm::ConstantInt::get(sizeTy, len);
+
+        //funzione: bool bsm_get_input(char[], size)
+        llvm::FunctionType* funcTy = llvm::FunctionType::get(boolTy, {charPtrTy, sizeTy}, false);
+        llvm::FunctionCallee callee = Module->getOrInsertFunction("bsm_get_input", funcTy);
+
+        Builder.CreateCall(callee, {str, lenValue});
+    };
+
+    bool handled = std::visit(TypeVisitor
+    {
+        [&](const PrimitiveType& p) -> bool {
+            switch(p) {
+                case PrimitiveType::Int:    getInputWithConversion("bsm_get_input_int32"); return true;
+                case PrimitiveType::Bool:   getInputWithConversion("bsm_get_input_bool");  return true;
+                case PrimitiveType::Char:   getInputWithConversion("bsm_get_input_char");  return true;
+            }
+            return false;
+        },
+        [&](const ArrayType& a) -> bool {
+            switch(a.elementType) {
+                case PrimitiveType::Char:   getInputString(targetAddr, a.size); return true;
+            }
+            return false;
+        }
+    }, targetType.category);
+
+    if(!handled) {
+        throw std::runtime_error("codegen internal error: unsupported type for get-input. type: " + types::toString(targetType));
     }
 
     return;

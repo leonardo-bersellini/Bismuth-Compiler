@@ -2,8 +2,14 @@
 
 
 add_library(BismuthRuntime STATIC
-    src/print.cpp
-    src/conversions.cpp
+    src/print/print.cpp
+    src/print/print.h
+
+    src/input/input.cpp
+    src/input/input.h
+
+    src/conversions/conversions.cpp
+    src/conversions/conversions.h
 )
 
 target_include_directories(BismuthRuntime PUBLIC

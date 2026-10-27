@@ -50,7 +50,7 @@ The project is continuously evolving, becoming progressively more complete and r
 - `const`, const declarations and parameters
 - Function declaration, `return`
 - `arrays`, complex types and static arrays
-- `print`: built-in function
+- `print` and `read`: stdout and stdin built-in functions
 
 **Supported expressions**
 - Arithmetic, comparison, and logical operators

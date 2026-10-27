@@ -1,20 +1,6 @@
-#ifndef _BSM_CONVERSIONS_
-#define _BSM_CONVERSIONS_
+#include "conversions.h"
 
 #include <stdint.h>
-
-// MODULO RUNTIME DI CONVERSIONE
-//
-// Questo modulo espone delle funzioni runtime di conversione dei tipi,
-// utilizzabili da altre funzioni runtime.
-//
-
-// CONVERSIONE STRING
-//
-// Le funzione accettano come parametro la stringa stessa sulla quale scrivere il valore
-// convertito, per non dover possedere la memoria utilizzata per l'output (char* puntatore).
-// Per questo motivo ritorna invece la lunghezza.
-//
 
 // int32 -> char[]
 size_t bsm_int32_to_str(int32_t value, char* out, size_t outCapacity)
@@ -101,7 +87,6 @@ size_t bsm_double_to_str(double value, char* out, size_t outCapacity)
 }
 
 // bool -> char[]
-extern "C"
 const char* bsm_bool_to_str(bool value, size_t& len) 
 {
     const char* str = value ? "true" : "false";
@@ -109,6 +94,101 @@ const char* bsm_bool_to_str(bool value, size_t& len)
     return str;
 }
 
+// char[] -> int32
+int32_t bsm_str_to_int32(char* str, size_t str_size, bool& ok)
+{
+    ok = true;
 
+    auto err = [&ok](int code) -> int32_t {
+        ok = false;
+        return code;
+    };
 
-#endif //_BSM_CONVERSIONS_
+    if(str == nullptr || str_size == 0)
+        return err(-1);
+
+    size_t i = 0;
+    bool negative = false;
+
+    // controllo segno
+    if(str[i] == '-') {
+        negative = true;
+        ++i;
+    } 
+    else if(str[i] == '+') ++i;
+
+    //deve esserci almeno una cifra
+    if(i >= str_size)
+        return err(-2);
+
+    // limite assoluto consentito, gestito senza overflow
+    const uint32_t limit = negative
+        ? 2147483648u
+        : 2147483647u;
+
+    uint32_t value = 0;
+
+    for (; i <= (str_size-1); ++i) {
+        char c = str[i];
+
+        // carattere non numerico
+        if (c < '0' || c > '9')
+            return err(-3);
+
+        uint32_t digit = static_cast<uint32_t>(c - '0');
+
+        // controllo overflow prima della moltiplicazione
+        if (value > limit / 10 || (value == limit / 10 && digit > limit % 10))
+            return err(-4);
+
+        value = value * 10 + digit;
+    }
+
+    if (negative) {
+        if (value == 2147483648u)
+            return err(-5);
+
+        return -static_cast<int32_t>(value);
+    }
+
+    return static_cast<int32_t>(value);
+}
+
+#include <stdio.h>
+// char[] -> bool
+bool bsm_str_to_bool(char* str, size_t str_size, bool& ok)
+{
+    ok = true;
+    
+    auto err = [&ok]() -> bool {
+        ok = false;
+        return false;
+    };
+
+    if(str == nullptr || str_size == 0)
+        return err();
+
+    //true
+    if(str_size == 4 && str[0] == 't' 
+        && str[1] == 'r' && str[2] == 'u' && str[3] == 'e') return true;
+    if(str_size == 1 && str[0] == '1') return true;
+
+    //false
+    if(str_size == 5 && str[0] == 'f' && str[1] == 'a' 
+        && str[2] == 'l' && str[3] == 's' && str[4]=='e') return false;
+    if(str_size == 1 && str[0] == '0') return false;
+
+    return err();
+}
+
+// char[] -> char
+char bsm_str_to_char(char* str, size_t str_size, bool& ok)
+{
+    ok = true;
+    if(str == nullptr || str_size == 0) {
+        ok = false;
+        return ' ';
+    }
+    return str[0];
+}
+
