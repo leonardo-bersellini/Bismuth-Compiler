@@ -37,12 +37,10 @@ bool linker::lld_link(const std::string &objFile, const std::string &outputExe, 
 
     std::string linkerPath = appDir.string() + "/" + linker_name;
     std::string runtimeDir = appDir.string() + "/runtime";
+    // directory contenente le librerie linkate nell'eseguibile finale
+    std::string libDir     = appDir.string() + "/libs";
 
     #ifdef _WIN32
-        // lld-link per windows richiede una serie di librerie runtime, 
-        // fornite nella folder bin/libs
-        std::string libDir     = appDir.string() + "/libs";
-
         std::vector<std::string> args = 
         {
             objFile,
@@ -64,13 +62,15 @@ bool linker::lld_link(const std::string &objFile, const std::string &outputExe, 
         };
     
     #elif defined(__linux__)
+        // -L<path> : aggiunge un include directory
+        // -l<name> : risolve un file in un include directory
         std::vector<std::string> args =
         {
-            "-flavor", "gnu"
-            "-static",
+            "-static", "-o", outputExe,
             "-z", "noexecstack",
-            "-o", outputExe,
-            objFile
+            libDir + "/crt1.o", //crt1.o
+            objFile,
+            "-L" + libDir, 
         };
     #endif
 
@@ -80,6 +80,10 @@ bool linker::lld_link(const std::string &objFile, const std::string &outputExe, 
             args.push_back(entry.path().string());
         }
     }
+
+    #ifdef __linux
+        args.push_back("-lc"); // libc.a : per ultimo (archivio)
+    #endif
 
     if(debug) {
         std::cout << "linker path: " << clr::bright_black << linkerPath << clr::reset << std::endl;

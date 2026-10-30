@@ -55,3 +55,14 @@ same. The windows' names of these functions are slightly different, but correcte
 
 - return code report:
 The linker execution is reported and the output of the process is displayed in debug.
+
+
+- LLD FOR LINUX -
+
+The lld linker for linux as been built in a linux environment (docker container on wsl) in a strict
+static way. It has been built from source to ensure compatibility with the others components and 
+to apply the static build system.
+This means that the ld.lld executable doesn't have any dependency. The only dependency that is 
+still present is the one from the libc fro sys calls. To avoid that library to be needed, the compiler
+should include inline assembly code.
+For this reasons, the only lib files that are used by the lld linker are crt1.o and libc.a.
