@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(BismuthCompiler 
-    VERSION 0.15.0
+    VERSION 0.15.1
     LANGUAGES CXX
     DESCRIPTION "Bismuth: compilatore sviluppato in C++ e LLVM"
 )
@@ -183,16 +183,18 @@ set_target_properties(Bismuth PROPERTIES OUTPUT_NAME "Bismuth${EXE_SUFFIX}")
 
 if(WIN32)
     set(LLD_FILE lld-link.exe)
-
-    # copia delle librerie per lld-link in bin/libs
-    add_custom_command(TARGET Bismuth POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_SOURCE_DIR}/third_party/lld/libs"
-            "$<TARGET_FILE_DIR:Bismuth>/libs"
-    )
+    set(LIBS_FOLDER libs-win)
 else()
     set(LLD_FILE ld.lld)
+    set(LIBS_FOLDER libs-linux)
 endif()
+
+# copia delle librerie per lld in bin/libs
+add_custom_command(TARGET Bismuth POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/third_party/lld/${LIBS_FOLDER}"
+        "$<TARGET_FILE_DIR:Bismuth>/${LIBS_FOLDER}"
+)
 
 # copia del linker in bin/
 add_custom_command(TARGET Bismuth POST_BUILD

@@ -21,3 +21,5 @@ set_target_properties(BismuthRuntime PROPERTIES
 )
 
 target_compile_features(BismuthRuntime PUBLIC cxx_std_20)
+
+target_compile_options(BismuthRuntime PRIVATE -fno-stack-protector)

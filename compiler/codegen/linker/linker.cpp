@@ -66,11 +66,13 @@ bool linker::lld_link(const std::string &objFile, const std::string &outputExe, 
     #elif defined(__linux__)
         std::vector<std::string> args =
         {
-            "-flavor", "gnu"
+            "-flavor", "gnu",
             "-static",
             "-z", "noexecstack",
             "-o", outputExe,
-            objFile
+            objFile,
+            "crt1.o",
+            "libc.a"
         };
     #endif
 
