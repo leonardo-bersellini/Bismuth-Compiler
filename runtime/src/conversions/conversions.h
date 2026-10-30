@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#ifdef __linux__
+    #include <cstddef>
+#endif
+
 // MODULO RUNTIME DI CONVERSIONE
 //
 // Questo modulo espone delle funzioni runtime di conversione dei tipi,

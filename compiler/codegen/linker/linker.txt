@@ -1,0 +1,57 @@
+// BISMUTH COMPILER PROJECT
+//
+// LINKER DETAILS AND CODE STRUCTURE
+// 
+
+This file contains all te details reguarding the lld linker of bismuth, including all the 
+differencies in structure of the two linker's executables for windows and linux.
+
+
+- RELEASE STRUCTURE -
+
+The linker executable changes from windows-release to linux-release, the two linkers have the
+lld default name (lld-link for windows and lld for linux), to allow the linker to deduce the 
+environment os without specific flags.
+
+The windows release also includes a set of libraries and dependencies, that are not present in the
+linux version because it is statically linked (better explained in the following sections).
+All these lib files are kept in the libs/ directory, that is passed as an argument to the linker.
+
+
+- LINKING PROCEDURE -
+
+The bismuth compiler links its obj files throught the lld_link procedure (main function of the
+linking module), that invokes the real linker.
+This procedure has some differences from an os version to an another (notice the ifdef guards to 
+separate the two codes).
+
+Here will be explained all the steps:
+
+- executable path recostruction:
+All the process-related operations needs to know the full path to the running application (bismuth.exe).
+This information can be obtained in different ways depending in the os. In this part is also
+setted the linker executable name.
+
+- useful paths:
+The linker's path and the runtime-lib's path are initialized starting from the application
+path.
+
+- lld arguments initialization:
+The linker arguments (that will be passed on to the linker process), are built for both lld versions.
+windows: in the argv are also included all the libs paths.
+linux: the syntax is different and the result is static, there are no included libraries.
+
+- runtime libs:
+All the runtime libraries are added to the arguments. It must be added the full path, because the 
+short filename, even if it works on windows, doesn't work on linux.
+This way, the names can be added with the same code for both cases.
+
+- debug informations: added in different parts of the final section of the code.
+
+- link process invokation:
+The linker is invoked in a child-process of a shell of cmd.exe (for windows) or bash (for linux).
+Both os uses the same system functions to create this new process, so the function is always the 
+same. The windows' names of these functions are slightly different, but corrected using macros.
+
+- return code report:
+The linker execution is reported and the output of the process is displayed in debug.

@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#ifdef __linux__
+    #include <cstddef>
+#endif
+
 // FILE SORGENTE PER IL MODULO RUNTIME DI PRINT
 //
 // Questo modulo implementa la funzione di print tramite API Windows. (consoleApi).

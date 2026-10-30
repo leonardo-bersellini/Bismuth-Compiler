@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#ifdef __linux__
+    #include <cstddef>
+#endif
+
 // FILE SORGENTE PER IL MODULO RUNTIME DI INPUT
 //
 // Questo modulo implementa le funzioni di input tramite API Windows.

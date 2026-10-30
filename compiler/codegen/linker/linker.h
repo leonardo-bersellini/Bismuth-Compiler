@@ -15,6 +15,7 @@ namespace clr = ansi::color;
 namespace linker 
 {
     bool lld_link(const std::string &objFile, const std::string &outputExe, bool debug);
+    int start_process(const std::string& command, std::string& output);
 }
 
 #endif //LINKER_H

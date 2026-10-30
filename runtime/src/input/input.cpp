@@ -1,6 +1,10 @@
 #include "input.h"
 
-#include <windows.h>
+#ifdef _WIN32
+    #include <windows.h>
+#elif defined(__linux__)
+    #include <cstdio>
+#endif
 
 //funzione di utility inline
 //determina la dimensione effettiva di una stringa letta in input, utilizzando le 
@@ -10,6 +14,7 @@ inline size_t get_inputed_str_size(const char* str)
     size_t size = 0;
     for(int i=0; str[i]!='\0'; ++i)
     {
+        if(str[i] == '\n') break;
         if(str[i] == '\r' && str[i+1] == '\n') break;
         size++;
     }
@@ -20,19 +25,20 @@ inline size_t get_inputed_str_size(const char* str)
 //buffer_size: dimensione del buffer (es. sizeof(buff))
 bool bsm_get_input(char* buffer, const size_t buffer_size)
 {
-    HANDLE Handle = GetStdHandle(STD_INPUT_HANDLE);
-    DWORD bytesRead = 0;
-
     if(buffer == NULL || buffer_size == 0)
         return false;
 
-    bool return_good = ReadConsoleA(Handle, buffer, buffer_size -1, &bytesRead, NULL); 
+    #ifdef _WIN32
+        HANDLE Handle = GetStdHandle(STD_INPUT_HANDLE);
+        DWORD bytesRead = 0;
+        bool good = ReadConsoleA(Handle, buffer, buffer_size -1, &bytesRead, NULL); 
+        buffer[bytesRead] = '\0';
 
-    if(!return_good) {
-        return false;
-    }
+    #elif defined(__linux__)
+        bool good = fgets(buffer, buffer_size, stdin);
+    #endif
 
-    buffer[bytesRead] = '\0';
+    if(!good) return false;
     
     return true;
 }

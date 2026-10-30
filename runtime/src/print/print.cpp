@@ -1,17 +1,26 @@
 #include "print.h"
 
-#include <windows.h>
+#ifdef _WIN32
+    #include <windows.h>
+#elif defined(__linux__)
+    #include <cstdio>
+#endif
 
 // data: caratteri da stampare in stdout
 // len: lunghezza del buffer
 bool bsm_print(const char* data, size_t len)
 {
-    HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    #ifdef _WIN32
+        HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        DWORD written = 0;
+        bool good = WriteConsoleA(Handle, data, len, &written, NULL);
+    
+    #elif defined(__linux__)
+        //argomenti: buffer, dimensione di ogni elemento in byte, lunghezza
+        bool good = fwrite(data, 1, len, stdout);
+    #endif
 
-    DWORD written = 0;
-    BOOL return_good = WriteConsoleA(Handle, data, len, &written, NULL);
-
-    if(!return_good) {
+    if(!good) {
         return false;
     }
 

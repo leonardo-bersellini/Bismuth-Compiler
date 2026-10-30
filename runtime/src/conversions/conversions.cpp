@@ -154,7 +154,6 @@ int32_t bsm_str_to_int32(char* str, size_t str_size, bool& ok)
     return static_cast<int32_t>(value);
 }
 
-#include <stdio.h>
 // char[] -> bool
 bool bsm_str_to_bool(char* str, size_t str_size, bool& ok)
 {

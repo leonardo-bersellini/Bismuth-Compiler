@@ -13,3 +13,9 @@
  libucrt.a
  libuser32.a
 
+ # LLD for Linux
+
+ The lld executable for linux has been built from source in a linux environment and in a completely static way,
+ so it has zero dependencies.
+ The environment use was a docker container working inside the wsl.
+

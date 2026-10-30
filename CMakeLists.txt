@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(BismuthCompiler 
-    VERSION 0.14.0
+    VERSION 0.15.0
     LANGUAGES CXX
     DESCRIPTION "Bismuth: compilatore sviluppato in C++ e LLVM"
 )
@@ -129,7 +129,14 @@ add_executable(Bismuth
 )
 
 target_link_libraries(Bismuth PRIVATE BismuthCore)
-target_link_options(Bismuth PRIVATE -static -static-libgcc -static-libstdc++ -Wl,--gc-sections)
+target_link_options(Bismuth PRIVATE -Wl,--gc-sections)
+
+if(WIN32)
+    target_link_options(Bismuth PRIVATE -static)
+else()
+    # su linux, alcune dipendenze di llvm devono essere linkate dinamicamente
+    target_link_options(Bismuth PRIVATE -static-libgcc -static-libstdc++)
+endif()
 
 
 # ADD BSM RUNTIMES
@@ -160,7 +167,7 @@ target_compile_definitions(Bismuth PRIVATE
     $<$<CONFIG:Release>:RELEASE_MACRO>
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+if(NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Release")
     set(EXE_SUFFIX "")
 else()
     set(EXE_SUFFIX "_${CMAKE_BUILD_TYPE}")
@@ -169,12 +176,29 @@ endif()
 set_target_properties(Bismuth PROPERTIES OUTPUT_NAME "Bismuth${EXE_SUFFIX}")
 
 
-# POST-BUILD CONFIGURATION (THIRD-PARTY DLLS)
+# POST-BUILD CONFIGURATION (THIRD-PARTY)
 
+# Il linker lld viene copiato nella folder bin/lld/
+# In build linux, la cartella lld/libs non è necessaria e pertanto non copiata
+
+if(WIN32)
+    set(LLD_FILE lld-link.exe)
+
+    # copia delle librerie per lld-link in bin/libs
+    add_custom_command(TARGET Bismuth POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/third_party/lld/libs"
+            "$<TARGET_FILE_DIR:Bismuth>/libs"
+    )
+else()
+    set(LLD_FILE ld.lld)
+endif()
+
+# copia del linker in bin/
 add_custom_command(TARGET Bismuth POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/third_party/lld"
-        "$<TARGET_FILE_DIR:Bismuth>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/third_party/lld/${LLD_FILE}" # lld executable
+        "$<TARGET_FILE_DIR:Bismuth>/${LLD_FILE}"
 )
 
 include(GNUInstallDirs)

@@ -25,9 +25,19 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.15.0** &ensp; <@leonardo-bersellini> &emsp; 29 . 10 . 2026
+
+ `commit:` Linux os support *-o- ()* 
+ <br>
+ `scope:`  All
+ <br>
+ `features:` implemented support for linux os
+
+ ---
+
  **V 0.14.0** &ensp; <@leonardo-bersellini> &emsp; 27 . 10 . 2026
 
- `commit:` Built-In input function *-o- ()* 
+ `commit:` Built-In input function *-o- (18db82b)* 
  <br>
  `scope:`  All
  <br>
