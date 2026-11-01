@@ -1,6 +1,11 @@
 
- # LLD.exe lib dependencies
+
+ # LLD for Windows lib dependencies
  
+ lld-link.exe has zero dependencies (excluding the kernel32)
+
+ lld-link.exe needs to link in the target executable the following libs:
+
  crt2.o
  libadvapi32.a
  libgcc.a
@@ -13,9 +18,19 @@
  libucrt.a
  libuser32.a
 
- # LLD for Linux
+ # LLD for Linux dependencies
 
- The lld executable for linux has been built from source in a linux environment and in a completely static way,
- so it has zero dependencies.
- The environment use was a docker container working inside the wsl.
+ ld.lld has the following dependencies:
+
+ linux-vdso.so.1 
+ libpthread.so.0 
+ libdl.so.2 
+ libm.so.6 
+ libc.so.6 
+ /lib64/ld-linux-x86-64.so.2 
+
+ ld.lld needs to link in the target executable the following libs:
+ 
+ crt1.o
+ libc.a
 

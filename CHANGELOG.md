@@ -25,9 +25,29 @@ each written as `field_name:` followed by its value.
 
  ---
 
+ **V 0.15.2** &ensp; <@leonardo-bersellini> &emsp; 01 . 11 . 2026
+
+ `commit:` Updated linux linker (glibc-based ld.lld) *-o- ()* 
+ <br>
+ `scope:`  Linker
+ <br>
+ `features:` new lld linker for linux (differently built)
+
+ ---
+
+ **V 0.15.1** &ensp; <@leonardo-bersellini> &emsp; 30 . 10 . 2026
+
+ `commit:` Added libc libraries to linux linker *-o- (8d2a964)* 
+ <br>
+ `scope:`  Linker
+ <br>
+ `features:` new libraries structure for the linux linker
+
+ ---
+
  **V 0.15.0** &ensp; <@leonardo-bersellini> &emsp; 29 . 10 . 2026
 
- `commit:` Linux os support *-o- ()* 
+ `commit:` Linux os support *-o- (9252239)* 
  <br>
  `scope:`  All
  <br>

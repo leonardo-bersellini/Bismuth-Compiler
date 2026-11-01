@@ -57,12 +57,41 @@ same. The windows' names of these functions are slightly different, but correcte
 The linker execution is reported and the output of the process is displayed in debug.
 
 
+- LLD FOR WINDOWS -
+
+The lld linker for windows (lld-link.exe) is a third-party linker taken from the LLVM project.
+It is the LLD 18.1.8 linker (the same version used by the rest of the project) and its statically
+built, so it only relies on the base libraries of the operating system.
+It is ditributed with all the libraries to make the final executables statically linked.
+The linker's name is the lld default one for windows, that tells the linker that its working on 
+a windows environment.
+
+
 - LLD FOR LINUX -
 
-The lld linker for linux as been built in a linux environment (docker container on wsl) in a strict
-static way. It has been built from source to ensure compatibility with the others components and 
-to apply the static build system.
-This means that the ld.lld executable doesn't have any dependency. The only dependency that is 
-still present is the one from the libc fro sys calls. To avoid that library to be needed, the compiler
-should include inline assembly code.
-For this reasons, the only lib files that are used by the lld linker are crt1.o and libc.a.
+What is distributed
+
+The ld.lld executable shipped with Bismuth for Linux is a custom build  of the LLD Linker 
+of LLVM 18.1.8, compiled from the llvm-project sources.
+It is the ELF counterpart of the lld-link.exe distributed on Windows, and it is the only
+linker Bismuth needs to turn the generated object file into an executable.
+The linker's name is the default name of lld on a linux os, and it tells te executable to work
+with elf executable files (without specifing the gnu flavor).
+
+How it has been built
+
+The build has been done inside a Docker container (running on WSL) based on Ubuntu 20.04, 
+starting from the llvm-project source tree at the tag llvmorg-18.1.8. 
+Only the lld project and the X86 target are built, in Release mode. All the optional dependencies
+are disabled (terminfo, zlib, zstd, libxml2), as well as tests, examples and benchmarks, and 
+the C++ runtime libraries are linked statically (-static-libstdc++ -static-libgcc).
+The resulting binary is then stripped to reduce its size.
+
+The final result
+
+The goal is a linker that works on a fresh Linux installation without needing the user 
+to install anything or to change their environment.
+To do so, the distributed linker must have zero dependencies to work. Linking the c++ runtimes
+and other components (zlib and zstd) statically, the only requirements are always available on 
+linux distributions since Ubuntu 20.04.
+The only libraries left (libc) are distributed with the linker.
