@@ -69,6 +69,7 @@ bool linker::lld_link(const std::string &objFile, const std::string &outputExe, 
             "-static", "-o", outputExe,
             "-z", "noexecstack",
             libDir + "/crt1.o", //crt1.o
+            libDir + "/crti.o", //crti.o
             objFile,
             "-L" + libDir, 
         };
@@ -82,7 +83,12 @@ bool linker::lld_link(const std::string &objFile, const std::string &outputExe, 
     }
 
     #ifdef __linux
-        args.push_back("-lc"); // libc.a : per ultimo (archivio)
+        // questi argomenti vanno inseriti dopo i runtime 
+        // per via della sintassi della cli del linker linux
+        args.push_back("--start-group");
+        args.push_back("-lc -lgcc -lgcc_eh"); // libc.a  libgcc.a  libgcc_eh.a
+        args.push_back("--end-group");
+        args.push_back(std::string(libDir + "/crtn.o")); // crtn.o
     #endif
 
     if(debug) {

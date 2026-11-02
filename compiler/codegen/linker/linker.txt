@@ -92,6 +92,6 @@ The final result
 The goal is a linker that works on a fresh Linux installation without needing the user 
 to install anything or to change their environment.
 To do so, the distributed linker must have zero dependencies to work. Linking the c++ runtimes
-and other components (zlib and zstd) statically, the only requirements are always available on 
+and other components (e.g. zlib and zstd) statically, the only requirements are always available on 
 linux distributions since Ubuntu 20.04.
-The only libraries left (libc) are distributed with the linker.
+The only libraries left (glibc components) are distributed with the linker.
