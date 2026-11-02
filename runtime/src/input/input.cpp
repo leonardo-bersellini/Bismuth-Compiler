@@ -4,6 +4,8 @@
     #include <windows.h>
 #elif defined(__linux__)
     #include <cstdio>
+    #include <unistd.h>
+    #include <errno.h>
 #endif
 
 //funzione di utility inline
@@ -35,7 +37,18 @@ bool bsm_get_input(char* buffer, const size_t buffer_size)
         buffer[bytesRead] = '\0';
 
     #elif defined(__linux__)
-        bool good = fgets(buffer, buffer_size, stdin);
+        size_t total = 0;
+        bool good = true;
+        while (total < buffer_size - 1)
+        {
+            char c;
+            ssize_t n = read(0, &c, 1);
+            if (n < 0) { if (errno == EINTR) continue; good = false; break; }
+            if (n == 0) { good = (total > 0); break; }   // EOF
+            buffer[total++] = c;
+            if (c == '\n') break;
+        }
+        buffer[total] = '\0';
     #endif
 
     if(!good) return false;

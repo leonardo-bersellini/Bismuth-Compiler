@@ -4,6 +4,8 @@
     #include <windows.h>
 #elif defined(__linux__)
     #include <cstdio>
+    #include <unistd.h>
+    #include <errno.h>
 #endif
 
 // data: caratteri da stampare in stdout
@@ -16,8 +18,14 @@ bool bsm_print(const char* data, size_t len)
         bool good = WriteConsoleA(Handle, data, len, &written, NULL);
     
     #elif defined(__linux__)
-        //argomenti: buffer, dimensione di ogni elemento in byte, lunghezza
-        bool good = fwrite(data, 1, len, stdout);
+        size_t written = 0;
+        bool good = true;
+        while (written < len)
+        {
+            ssize_t n = write(1, data + written, len - written);
+            if (n < 0) { if (errno == EINTR) continue; good = false; break; }
+            written += n;
+        }
     #endif
 
     if(!good) {
